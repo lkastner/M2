@@ -14,15 +14,16 @@ raySort = rays -> rays _ (reverse sortColumns (- matrix {rays}))
 
 -- Methods declarations for methods defined for several objects, but not all of polyhedraHash
 load "./methods.m2"
+load "./faceBuilders.m2"
 
 -- Objects
-load "./polyhedraHash.m2"
-   load "./polyhedralObject.m2"
-      load "./cone.m2"
-      load "./polyhedron.m2"
-   load "./polyhedralObjectFamily.m2"
-      load "./fan.m2"
-      load "./polyhedralComplex.m2"
+load "./objects/polyhedraHash.m2"
+   load "./objects/polyhedralObject.m2"
+      load "./objects/cone.m2"
+      load "./objects/polyhedron.m2"
+   load "./objects/polyhedralObjectFamily.m2"
+      load "./objects/fan.m2"
+      load "./objects/polyhedralComplex.m2"
 
 -- Method not associated with fixed object type
 load "./intersection.m2"
@@ -39,8 +40,13 @@ load "./raw-polymake.m2"
 
 -- Legacy code
 load "./legacy.m2"
+
+-- Tests
+load "./tests_from_polymake/hilbert_basis.m2"
 load "./tests_from_polymake/lattice_points.m2"
 load "./legacy_tests.m2"
+
+-- Documentation
 load "./legacy_doc.m2"
 end
 

@@ -20,7 +20,7 @@ net Cone := C -> ( horizontalJoin flatten (
 -- PURPOSE : Tests if a Cone is pointed
 --   INPUT : 'C'  a Cone
 --  OUTPUT : 'true' or 'false'
-isPointed Cone := C -> rank C#"linealitySpace" == 0
+isPointed Cone := C -> rank linSpace(C) == 0
 
 
 --   INPUT : 'C'  a Cone
@@ -110,10 +110,10 @@ posHull Matrix := R -> (
 --   INPUT : '(C1,C2)'  two cones
 posHull(Cone,Cone) := (C1,C2) -> (
 	-- Checking for input errors
-	if C1#"ambient dimension" =!= C2#"ambient dimension" then error("Cones must lie in the same ambient space");
+	if ambDim(C1) =!= ambDim(C2) then error("Cones must lie in the same ambient space");
 	-- Combining the rays and the lineality spaces into one matrix each
-	R := C1#"rays" | C2#"rays";
-	LS := C1#"linealitySpace" | C2#"linealitySpace";
+	R := rays(C1) | rays(C2);
+	LS := linSpace(C1) | linSpace(C2);
 	dualgens := fourierMotzkin(R,LS);
 	local genrays;
 	(genrays,dualgens) = fMReplacement(R,dualgens#0,dualgens#1);
@@ -177,8 +177,8 @@ hilbertBasis Cone := C -> (
 	  N := gens ker(-h|A);
 	  N = transpose (ref transpose N)#0;
 	  N_{0}^{1..(numRows N)-1});
-     A := C#"halfspaces";
-     if C#"hyperplanes" != 0 then A = A || C#"hyperplanes" || -(C#"hyperplanes");
+     A := halfspaces(C);
+     if hyperplanes(C) != 0 then A = A || hyperplanes(C) || -(hyperplanes(C));
      A = substitute(A,ZZ);
      -- Use the project and lift algorithm to compute a basis of the space of vectors positive on 'A' whose preimages are the HilbertBasis
      (B,BC) := ref transpose A; 
@@ -264,7 +264,7 @@ maxFace (Matrix,Cone) := (v,C) -> minFace(-v,C)
 --  OUTPUT : a Cone, the face of 'P' where 'v' attains its minimum
 minFace (Matrix,Cone) := (v,C) -> (
      -- Checking for input errors
-     if numColumns v =!= 1 or numRows v =!= C#"ambient dimension" then error("The vector must lie in the same space as the polyhedron");
+     if numColumns v =!= 1 or numRows v =!= ambDim(C) then error("The vector must lie in the same space as the polyhedron");
      R := rays C;
      LS := linSpace C;
      C = dualCone C;
@@ -305,7 +305,18 @@ inInterior (Matrix,Cone) := (p,C) -> (
 isFace(Cone,Cone) := (C1,C2) -> (
      c := dim C2 - dim C1;
      -- Checking if the two cones lie in the same space and the dimension difference is positive
-     if C1#"ambient dimension" == C2#"ambient dimension" and c >= 0 then (
+     if ambDim(C1) == ambDim(C2) and c >= 0 then (
 	  -- Checking if one of the codim 'c' faces of C2 is C1
 	  any(faces(c,C2), f -> f === C1))
      else false)
+
+     
+
+-- PURPOSE : Computing the dual cone
+--   INPUT : 'C',  a Cone
+--  OUTPUT : The dual Cone, which is {v | v*c>=0 forall c in C}
+dualCone = method(TypicalValue => Cone)
+dualCone Cone := C -> (
+	genrays := (sort transpose halfspaces(C),sort transpose hyperplanes(C));
+	dualgens := (sort (-(rays(C))),sort linSpace(C));
+	coneBuilder(genrays,dualgens))
