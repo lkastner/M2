@@ -2033,6 +2033,9 @@ enum gbTraceValues
   const Matrix /* or null */ *rawRefinePT(PathTracker* PT, const Matrix* sols, gmp_RR tolerance, int max_corr_steps_refine);
   const Matrix /* or null */ *rawGbBoolean(const Matrix *m);
   const Matrix /* or null */ *rawBIBasis(const Matrix* m, int toGroebner);
+
+  // polymake interface
+  MutableMatrix* rawPolymakeConvexHull(MutableMatrix*);
 #if defined(__cplusplus)
 }
 #endif

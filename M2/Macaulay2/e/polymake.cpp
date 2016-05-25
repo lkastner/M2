@@ -1,10 +1,11 @@
+#include "engine.h"
 #include <polymake/Main.h>
 #include <polymake/Matrix.h>
 #include <polymake/SparseMatrix.h>
 #include <polymake/Rational.h>
 using namespace polymake;
 
-int rawPolymakeConvexHull(int i) {
+MutableMatrix* rawPolymakeConvexHull(MutableMatrix* M) {
   try {
     const int dim = 4;
     Main pm;
@@ -18,7 +19,7 @@ int rawPolymakeConvexHull(int i) {
   } catch (const std::exception& ex) {
     std::cerr << "ERROR: " << ex.what() << endl; return 1;
   }
-  return 0; 
+  return M; 
 }
 
 
