@@ -2035,7 +2035,7 @@ enum gbTraceValues
   const Matrix /* or null */ *rawBIBasis(const Matrix* m, int toGroebner);
 
   // polymake interface
-  MutableMatrix* rawPolymakeConvexHull(MutableMatrix*);
+  M2_bool rawPolymakeConvexHull(MutableMatrix *M);
 #if defined(__cplusplus)
 }
 #endif
