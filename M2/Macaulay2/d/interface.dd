@@ -4144,7 +4144,7 @@ setupfun("ConstantII",ConstantII);
 
 
 export rawPolymakeConvexHull(e:Expr):Expr := (
-     when e is M:RawMutableMatrixCell do possibleEngineError( Ccode(bool, "IM2_SmithNormalForm(", M.p, ")" ) )
+     when e is M:RawMutableMatrixCell do possibleEngineError( Ccode(bool, "rawPolymakeConvexHull(", 0, ")" ) )
      else WrongArgMutableMatrix());
 setupfun("rawPolymakeConvexHull",rawPolymakeConvexHull);
 

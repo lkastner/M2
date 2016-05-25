@@ -4,7 +4,7 @@
 #include <polymake/Rational.h>
 using namespace polymake;
 
-int rawPolymakeConvexHull() {
+int rawPolymakeConvexHull(int i) {
   try {
     const int dim = 4;
     Main pm;
