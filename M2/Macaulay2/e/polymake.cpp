@@ -1,11 +1,30 @@
 #include "engine.h"
+
+#include "relem.hpp"
+#include "ring.hpp"
+#include "GF.hpp"
+
+#include "coeffrings.hpp"
+#include "aring-zz-gmp.hpp"
+#include "mat.hpp"
+#include "fractionfreeLU.hpp"
+#include "LLL.hpp"
+#include "exceptions.hpp"
+
+#include "matrix.hpp"
+#include "aring-zzp-ffpack.hpp"
+#include "mutablemat.hpp"
+
+#include "finalize.hpp"
+
+
 #include <polymake/Main.h>
 #include <polymake/Matrix.h>
 #include <polymake/SparseMatrix.h>
 #include <polymake/Rational.h>
 using namespace polymake;
 
-MutableMatrix* rawPolymakeConvexHull(MutableMatrix* M) {
+M2_bool x_rawPolymakeConvexHull(MutableMatrix *M) {
   try {
     const int dim = 4;
     Main pm;
@@ -19,7 +38,7 @@ MutableMatrix* rawPolymakeConvexHull(MutableMatrix* M) {
   } catch (const std::exception& ex) {
     std::cerr << "ERROR: " << ex.what() << endl; return 1;
   }
-  return M; 
+  return true; 
 }
 
 
