@@ -9,7 +9,7 @@ ambDim = method(TypicalValue => ZZ)
 
 --   INPUT : 'P'  a Polyhedron 
 --  OUTPUT : an integer, the dimension of the ambient space
-ambDim PolyhedraHash := X -> X#"ambient dimension"
+ambDim PolyhedraHash := X -> X#ambientDimension
 
 isSimplicial = method(TypicalValue => Boolean)
 

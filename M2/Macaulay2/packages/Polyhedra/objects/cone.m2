@@ -63,7 +63,7 @@ coneBuilder = (genrays,dualgens) -> (
       hyperplanesTmp := transpose(dualgens#1);
       -- Defining C
       result := new Cone from {
-         "ambient dimension" => numgens target RM,
+         ambientDimension => numgens target RM,
          "dimension" => (numgens target RM)-(rank hyperplanesTmp),
          "dimension of lineality space" => numgens source LS,
          "linealitySpace" => LS,
@@ -79,31 +79,55 @@ coneBuilder = (genrays,dualgens) -> (
       result
 )
 
-rules#((set{"ambient dimension", computedHyperplanes}, set{computedDimension})) = method(TypicalValue => ZZ)
-rules#((set{"ambient dimension", computedHyperplanes}, set{computedDimension})) Cone := C -> (
-   C.cache#computedDimension = ambDim C - numRows hyperplanes C;
+makeRule(
+   set{ambientDimension, computedHyperplanes}, 
+   set{computedDimension},
+   C -> (
+      C.cache#computedDimension = ambDim C - numRows hyperplanes C;
+   )
 )
 
-
-rules#((set {inputRays, inputLinealityGenerators}, set {computedRays, computedFacets, computedHyperplanes, computedLinealityBasis})) = method(TypicalValue => Matrix)
-rules#((set {inputRays, inputLinealityGenerators}, set {computedRays, computedFacets, computedHyperplanes, computedLinealityBasis})) Cone := C -> (
-   inputRays := C.cache.inputRays;
-   inputLinealityGenerators := C.cache.inputLinealityGenerators;
-   dual := fourierMotzkin(inputRays, inputLinealityGenerators);
-   (raySide, facetSide) := fMReplacement(inputRays, dual#0, dual#1);
-   C.cache#computedLinealityBasis = raySide#1;
-   C.cache#computedFacets = transpose( -facetSide#0);
-   C.cache#computedHyperplanes = transpose( -facetSide#1);
-   C.cache#computedRays = raySide#0;
+makeRule(
+   set{computedRays, computedLinealityBasis}, 
+   set{computedDimension},
+   C -> (
+      C.cache#computedDimension = (rank rays C) + numRows transpose linSpace C;
+   )
 )
 
-rules#((set {inequalities, equations}, set{computedRays, computedLinealityBasis})) = method(TypicalValue => Matrix)
-rules#((set {inequalities, equations}, set{computedRays, computedLinealityBasis})) Cone := C -> (
-   inequalities := C.cache.inequalities;
-   equations := C.cache.equations;
-   dual := fourierMotzkin(inequalities, equations);
-   C.cache#computedLinealityBasis = dual#1;
-   C.cache#computedRays = dual#0;
+makeRule(
+   set{inputRays, inputLinealityGenerators}, 
+   set{computedDimension},
+   C -> (
+      C.cache#computedDimension = rank (C.cache#inputRays | C.cache#inputLinealityGenerators);
+   )
+)
+
+makeRule(
+   set {inputRays, inputLinealityGenerators}, 
+   set {computedRays, computedFacets, computedHyperplanes, computedLinealityBasis},
+   C -> (
+      inputRays := C.cache.inputRays;
+      inputLinealityGenerators := C.cache.inputLinealityGenerators;
+      dual := fourierMotzkin(inputRays, inputLinealityGenerators);
+      (raySide, facetSide) := fMReplacement(inputRays, dual#0, dual#1);
+      C.cache#computedLinealityBasis = raySide#1;
+      C.cache#computedFacets = transpose( -facetSide#0);
+      C.cache#computedHyperplanes = transpose( -facetSide#1);
+      C.cache#computedRays = raySide#0;
+   )
+)
+
+makeRule(
+   set {inequalities, equations}, 
+   set{computedRays, computedLinealityBasis}, 
+   C -> (
+      inequalities := C.cache.inequalities;
+      equations := C.cache.equations;
+      dual := fourierMotzkin(inequalities, equations);
+      C.cache#computedLinealityBasis = dual#1;
+      C.cache#computedRays = dual#0;
+   )
 )
 
 
@@ -112,7 +136,7 @@ coneFromRays(Matrix, Matrix) := (inputRays, linealityGenerators) -> (
      -- checking for input errors
      if numRows inputRays =!= numRows linealityGenerators then error("rays and linSpace generators must lie in the same space");
      result := new Cone from {
-         "ambient dimension" => numRows inputRays,
+         ambientDimension => numRows inputRays,
          symbol cache => new CacheTable
      };
      result.cache.inputRays = inputRays;

@@ -15,8 +15,8 @@ raySort = rays -> rays _ (reverse sortColumns (- matrix {rays}))
 
 -- Methods declarations for methods defined for several objects, but not all of polyhedraHash
 load "./methods.m2"
-load "./miniScheduler.m2"
 load "./faceBuilders.m2"
+load "./miniScheduler.m2"
 
 -- Objects
 load "./objects/polyhedraHash.m2"
@@ -54,9 +54,19 @@ end
 -------------------------------------------------------------------------------
 restart
 loadPackage "Polyhedra"
-C = posHull matrix {{12,3},{3,5}}
-hilbertBasis C
+CT = new CacheTable;
+CT.computedRays = matrix {{1},{2}}
+CT.computedLinealityBasis = matrix{{0},{-1}}
+H = new HashTable from {symbol cache => CT}
+C = new Cone from H
 dim C
+C = posHull matrix {{12,3},{3,5}}
+keys C
+keys C.cache
+hilbertBasis C
+keys C.cache
+dim C
+keys C.cache
 linSpace C
 rays C
-check "Polehedra"
+check "Polyhedra"
