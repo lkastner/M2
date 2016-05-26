@@ -24,20 +24,21 @@
 #include <polymake/Rational.h>
 using namespace polymake;
 
-M2_bool x_rawPolymakeConvexHull(MutableMatrix *M) {
-  try {
-    const int dim = 4;
-    Main pm;
-    pm.set_application("polytope");
-    perl::Object p("Polytope<Rational>");
-    p.take("VERTICES") << (ones_vector<Rational>() | 
-       3*unit_matrix<Rational>(dim));
-    const Matrix<Rational> f = p.give("FACETS");
-    const Vector<Integer> h = p.give("H_STAR_VECTOR");
-    cout << "facets" << endl << f << endl << "h* " << h << endl;
-  } catch (const std::exception& ex) {
-    std::cerr << "ERROR: " << ex.what() << endl; return 1;
-  }
+M2_bool rawPolymakeConvexHull(MutableMatrix *M) {
+//  try {
+//    const int dim = 4;
+//    Main pm;
+//    pm.set_application("polytope");
+//    perl::Object p("Polytope<Rational>");
+//    p.take("VERTICES") << (ones_vector<Rational>() | 
+//       3*unit_matrix<Rational>(dim));
+//    const Matrix<Rational> f = p.give("FACETS");
+//    const Vector<Integer> h = p.give("H_STAR_VECTOR");
+//    cout << "facets" << endl << f << endl << "h* " << h << endl;
+//  } catch (const std::exception& ex) {
+//    std::cerr << "ERROR: " << ex.what() << endl; return 1;
+//  }
+   std::cerr << "Hello." << endl;
   return true; 
 }
 

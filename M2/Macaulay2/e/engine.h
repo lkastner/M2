@@ -60,6 +60,7 @@ typedef EngineComputation EngineComputationOrNull;
 #if defined(__cplusplus)
 extern "C" {
 #endif
+  M2_bool rawPolymakeConvexHull(MutableMatrix *M);
   void IM2_initialize(void); /* drg: connected */
   M2_string IM2_last_error_message(void); /* drg: connected */
 
@@ -2035,7 +2036,6 @@ enum gbTraceValues
   const Matrix /* or null */ *rawBIBasis(const Matrix* m, int toGroebner);
 
   // polymake interface
-  M2_bool rawPolymakeConvexHull(MutableMatrix *M);
 #if defined(__cplusplus)
 }
 #endif
