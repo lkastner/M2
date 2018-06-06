@@ -8,7 +8,7 @@ addStartFunction(
 
 Package = new Type of MutableHashTable
 Package.synonym = "package"
-net Package := toString Package := p -> if p#?"title" then p#"title" else "{*package*}"
+net Package := toString Package := p -> if p#?"title" then p#"title" else "-*package*-"
 loadedPackages = {}
 options Package := p -> p.Options
 
@@ -42,11 +42,22 @@ loadPackage = method(
 packageLoadingOptions := new MutableHashTable
 checkPackageName = title -> if not match("^[a-zA-Z0-9]+$",title) then error( "package title not alphanumeric: ",format title)
 
+closePackage = pkg -> (
+     if pkg#?"raw documentation database"
+     then (db -> if isOpen db then close db) pkg#"raw documentation database";
+     )
+
 loadPackage String := opts -> pkgtitle -> (
      checkPackageName pkgtitle;
      if opts.Reload === true then (
+	  -- << "-- reloading package " << pkgtitle << endl;
+	  -- really close the old one
 	  dismiss pkgtitle;
-	  if PackageDictionary#?pkgtitle then PackageDictionary#pkgtitle <- PackageDictionary#pkgtitle;
+	  if PackageDictionary#?pkgtitle then (
+	       pkg := PackageDictionary#pkgtitle;
+	       closePackage (value pkg); -- eventually we won't be able to keep all of these open, anyway, since 256 can be our limit on open file descriptors
+	       PackageDictionary#pkgtitle <- PackageDictionary#pkgtitle; -- clear out the value of the symbol
+	       );
 	  );
      filename := if opts.FileName === null then pkgtitle | ".m2" else opts.FileName;
      packageLoadingOptions#pkgtitle = opts;
@@ -106,7 +117,9 @@ newPackage = method(
 	  Configuration => {},
 	  Reload => false,
 	  PackageExports => {},
-	  PackageImports => {}
+	  PackageImports => {},
+          UseCachedExampleOutput => null,
+          OptionalComponentsPresent => null
 	  })
 
 protect Reload
@@ -131,11 +144,6 @@ stderr << "--loading configuration for package \"PKG\" from file " << currentFil
      VALUES
 }
 ///
-
-closePackage = pkg -> (
-     if pkg#?"raw documentation database"
-     then (db -> if isOpen db then close db) pkg#"raw documentation database";
-     )
 
 -- gdbm makes architecture dependent files, so we try to distinguish them, in case
 -- they get mixed.  Yes, that's in addition to installing them in directories that
@@ -204,7 +212,12 @@ newPackage(String) := opts -> (title) -> (
 	       opts = merge(opts, new OptionTable from {DebuggingMode => loadOptions.DebuggingMode},last);
 	       );
 	  );
-     if opts.DebuggingMode and not debuggingMode then opts = merge(opts, new OptionTable from {DebuggingMode => false},last);
+     if opts.DebuggingMode and not debuggingMode
+     then opts = merge(opts, new OptionTable from {DebuggingMode => false},last);
+     if opts.OptionalComponentsPresent === null
+     then opts = merge(opts, new OptionTable from {OptionalComponentsPresent => opts.CacheExampleOutput =!= true },last);
+     if opts.UseCachedExampleOutput === null
+     then opts = merge(opts, new OptionTable from {UseCachedExampleOutput => not opts.OptionalComponentsPresent},last);
      newpkg := new Package from nonnull {
           "title" => title,
 	  symbol Options => opts,
@@ -241,7 +254,6 @@ newPackage(String) := opts -> (title) -> (
 	  rawdbname := newpkg#"package prefix" | replace("PKG",title,currentLayout#"packagecache") | "rawdocumentation" | databaseSuffix;
 	  if fileExists rawdbname then (
 	       rawdb := openDatabase rawdbname;
-	       if notify then stderr << "--opened database: " << rawdbname << endl;
 	       newpkg#"raw documentation database" = rawdb;
 	       addEndFunction(() -> if isOpen rawdb then close rawdb))
 	  else (
@@ -274,11 +286,11 @@ newPackage(String) := opts -> (title) -> (
      loadedPackages = {Core};
      dictionaryPath = {Core.Dictionary, OutputDictionary, PackageDictionary};
      if Core#?"base packages" then (
-	  if member(title,Core#"base packages") and title =!= "Macaulay2Doc" then (
-	       if member("Macaulay2Doc",Core#"base packages") then needsPackage "Macaulay2Doc";
-	       )
-	  else scan(reverse Core#"base packages", needsPackage)
-	  );
+     	  if member(title,Core#"base packages") and title =!= "Macaulay2Doc" then (
+     	       if member("Macaulay2Doc",Core#"base packages") then needsPackage "Macaulay2Doc";
+     	       )
+     	  else scan(reverse Core#"base packages", needsPackage)
+     	  );
      dictionaryPath = (
 	  if member(newpkg.Dictionary,dictionaryPath)
      	  then join({newpkg#"private dictionary"}, dictionaryPath)
@@ -286,7 +298,7 @@ newPackage(String) := opts -> (title) -> (
      setAttribute(newpkg.Dictionary,PrintNames,title | ".Dictionary");
      setAttribute(newpkg#"private dictionary",PrintNames,title | "#\"private dictionary\"");
      debuggingMode = opts.DebuggingMode;		    -- last step before turning control back to code of package
-     if title =!= "SimpleDoc" and title =!= "Core" and title =!= "Text" then needsPackage "SimpleDoc";
+     -- if title =!= "SimpleDoc" and title =!= "Core" and title =!= "Text" then needsPackage "SimpleDoc";
      scan(opts.PackageImports, needsPackage);
      scan(opts.PackageExports, needsPackage);
      newpkg.loadDepth = loadDepth;
@@ -491,76 +503,6 @@ debug Package := pkg -> (
 	  dictionaryPath = prepend(d,dictionaryPath);
 	  );
      checkShadow())
-
-body := response -> replace("^(.|.\r\n)*\r\n\r\n","",response)
-getwww := url -> (
-     www := getWWW url;
-     if www === null or match("^[^ ]+ 404\\b",www) then null else body www)
-chkwww := url -> (
-     www := getwww url;
-     if www === null then error("web page not found: \"", url, "\"");
-     www)
-getPackage = method(Options => { 
-	  Repository => "http://www.math.uiuc.edu/Macaulay2/Packages/",
-	  Version => null, 
-	  CurrentVersion => null,
-	  UserMode => null,
-	  DebuggingMode => false,
-	  Configuration => {}
-	  })
-installMethod(getPackage, opts -> () -> lines getwww (opts.Repository | "packages" ))
-getPackage String := opts -> pkgname -> (
-     packages := lines getwww (opts.Repository | "packages" );
-     if not member(pkgname,packages)
-     then error("unknown package: ", pkgname, "; known packages: ", concatenate(between(", ",packages)));
-     url := opts.Repository | pkgname | "/";
-     versions := sort lines chkwww (url | "versions");
-     if #versions == 0 then error "getPackage: no versions available from repository";
-     if opts.Version === null then (
-     	  vers := last versions;
-	  if opts.CurrentVersion =!= null and not vers > opts.CurrentVersion then return;
-	  )
-     else (
-	  vers = opts.Version;
-	  if not member(vers,versions) then error("requested version not among those available: ",concatenate between(", ",versions));
-	  );
-     stderr << "--fetching package " << pkgname << ", version " << vers << " from " << url << endl;
-     tmp := temporaryFileName();
-     unwind := arg -> scan(reverse findFiles tmp, fn -> if isDirectory fn then removeDirectory fn else removeFile fn);
-     makeDirectory tmp;
-     tmp = tmp | "/";
-     fn := pkgname | ".m2";
-     m2file := getwww(url | vers | "/" | fn);
-     filename := tmp | pkgname | ".m2";
-     if m2file === null then (
-	  fn = pkgname | ".tgz";
-	  tgzfile := getwww(url | vers | "/" | fn);
-	  if tgzfile === null then error "failed to download package";
-	  stderr << "--file downloaded: " << fn << endl;
-	  tfn := pkgname | ".tgz";
-	  tgzfilenm := tmp | tfn;
-	  tgzfilenm << tgzfile << close;
-	  cmd := concatenate("cd ",tmp,"; tar xzf ",tfn);
-	  stderr << "--- " << cmd << endl;
-	  if 0 != chkrun cmd then error("getPackage: failed to untar ",tfn);
-	  if not fileExists filename then error("package file ",filename," missing");
-	  )
-     else (
-	  stderr << "--file downloaded: " << fn << endl;
-	  filename << m2file << close;
-	  );
-     pkg := loadPackage(pkgname,
-	  DebuggingMode => opts.DebuggingMode,
-	  Configuration => opts.Configuration,
-	  FileName => filename,
-	  LoadDocumentation => true
-	  );
-     installPackage(pkg, 
-	  IgnoreExampleErrors => true, 
-	  DebuggingMode => opts.DebuggingMode, 
-	  FileName => filename, 
-	  UserMode => opts.UserMode);
-     )
 
 installedPackages = () -> (
  docdir := applicationDirectory() | "local/" | Layout#1#"docdir";

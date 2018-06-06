@@ -4,10 +4,11 @@
 -- html output
 -----------------------------------------------------------------------------
 
-htmlLiteral = s -> if not match("<|&|]]>",s) then s else (
+htmlLiteral = s -> if not match("<|&|]]>|\42",s) then s else (
      s = replace("&","&amp;",s);			    -- do this one first
      s = replace("<","&lt;",s);
      s = replace("]]>","]]&gt;",s);
+     s = replace("\42","&quot;",s);  -- note: \42 is "
      s )
 
 -----------------------------------------------------------------------------
@@ -103,7 +104,7 @@ specials := new HashTable from {
 
 texMath Function := texMath Boolean := x -> "\\text{" | tex x | "}"
 
-{*
+-*
  spacing between lines and paragraphs:
  observation of browsers reveals:
      nonempty PARA items get at least one blank line above and below
@@ -137,7 +138,7 @@ texMath Function := texMath Boolean := x -> "\\text{" | tex x | "}"
      One more consideration: info MENUs should not be wrapped, but they can be contained in a DIV, which
      must arrange for the wrapping of strings contained in it.  Also, HypertextParagraphs have already been
      wrapped, so they don't need to be wrapped again.
-*}
+*-
 
 BK := local BK
 SP := local SP

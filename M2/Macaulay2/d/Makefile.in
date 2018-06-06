@@ -74,7 +74,7 @@ rm-libd.a:; rm libd.a
 
 clean:: ; rm -f $(M2_MADECFILES)
 xml-c.o: xml-c.h xml-exports.h
-M2inits.o basic.o equality.o actors4.o actors5.o interface.o interface2.o engine.o : CPPFLAGS += -I@srcdir@/../e -I../e-includes
+M2lib.o M2inits.o basic.o equality.o actors4.o actors5.o interface.o interface2.o engine.o : CPPFLAGS += -I@srcdir@/../e -I../e-includes
 ifeq (@PARI@,yes)
 pari.o: CFLAGS += -Wno-shadow
 pari.o: CPPFLAGS += -DINCLUDE_PARI_H
@@ -85,6 +85,11 @@ pari-c.o: CFLAGS += -Wno-unused
 endif
 pari-c.o: ../../include/M2/config.h ../../config.status
 endif
+
+# struct is a synonym for public class...:
+equality.o version.o engine.o interface.o: CXXFLAGS += -Wno-mismatched-tags
+
+pari-gnump.o: CFLAGS += -Wno-error
 
 pthread-tmp.c : SCCFLAGS += -noline
 
@@ -126,13 +131,11 @@ endif
 
 M2-factory.o : COMPILE.cc += -Wno-old-style-cast
 
-# M2INCLUDES  = -I../../include
-# M2INCLUDES += -I@srcdir@/../../include
 M2INCLUDES += -I@srcdir@
 M2INCLUDES += -I@srcdir@/../e
-M2INCLUDES += -I.
-# M2INCLUDES += -I../util
-# M2INCLUDES += -I../e
+
+# these are the files that need to find include files built in the current build directory
+M2inits.o $(M2_LASTCFILES:.c=.o) : CPPFLAGS += -I.
 
 # to get scc-core.h:
 M2INCLUDES += -I@srcdir@/../c
@@ -145,30 +148,23 @@ CPPFLAGS := $(M2INCLUDES) $(CPPFLAGS) $(M2_CPPFLAGS)
 
 CPPFLAGS += -Wno-fatal-errors
 
-CFLAGS += $(M2_CFLAGS) -Werror
+CFLAGS += $(M2_CFLAGS)
 ifeq "@__INTEL_COMPILER@" "no"
 CFLAGS += -Wno-unused-label
 endif
 
-# # C standards
-# ## CFLAGS += -std=c89
-# # c99 allows declarations and statements to be mingled:
-# CFLAGS += -std=c99
-# CFLAGS += -pedantic-errors
+CXXFLAGS += $(M2_CXXFLAGS)
 
-# # C++ standards
-# CXXFLAGS += -std=c++98
-# CXXFLAGS += -pedantic-errors
-
-CFLAGS   += -Wreturn-type -Werror
-CXXFLAGS += -Wreturn-type -Werror
-CXXFLAGS += -std=c++11
+CFLAGS   += -Wreturn-type
+CXXFLAGS += -Wreturn-type
 
 python-c.o : | python-exports.h.tmp
 
 # see https://github.com/Macaulay2/M2/issues/430
 # adding this prevents an error when gcc 6 compiles stack_trace in M2lib.c
+ifeq (@HAVE_WFRAME_ADDRESS@,yes)
 M2lib.o : M2_CFLAGS += -Wno-frame-address
+endif
 
 M2lib.o scclib.o : | interp-exports.h.tmp
 scclib.o : expr-exports.h M2mem.h M2inits.h ../dumpdata/map.h debug.h types.h ../c/compat.h ../e/engine.h ../dumpdata/dumpdata.h

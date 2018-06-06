@@ -64,9 +64,25 @@ numeric(ZZ, Matrix) := (prec,f) -> (
      )
 numeric Matrix := f -> numeric(defaultPrecision,f)
 
-reduce = (tar,f) -> (
-     if isFreeModule tar then f
-     else f % raw gb presentation tar)
+-- Warning: does not return a normal form over local rings
+reduce = (tar,rawF) -> (
+    if isFreeModule tar then return rawF;
+    RP := ring tar;
+    G := presentation tar;
+    if instance(RP, LocalRing) then (
+        F := map(RP, rawF);
+        cols := for i from 0 to numColumns F - 1 list F_{i};
+        mat  := for col in cols list (
+            LocalRings := needsPackage "LocalRings";
+            liftUp := value LocalRings.Dictionary#"liftUp";
+            L := flatten entries syz(liftUp(col | G), SyzygyRows => 1);
+            if any(L, u -> isUnit promote(u, RP))
+              then map(tar, RP^1, 0)
+              else col
+              );
+        rawMatrixRemake2(raw cover tar, rawSource rawF, degree rawF, raw matrix{mat}, 0)
+        )
+    else rawF % raw gb G)
 protect symbol reduce					    -- we won't export this
 
 Matrix * Number := Matrix * ZZ := (m,i) -> i * m
@@ -601,7 +617,6 @@ inducedMap(Module,Module,Matrix) := Matrix => opts -> (N',M',f) -> (
 	  if relations M % relations M' != 0 then error "inducedMap: expected new source not to have fewer relations";
 	  if relations N % relations N' != 0 then error "inducedMap: expected new target not to have fewer relations";
 	  if generators M' % gbM != 0 then error "inducedMap: expected new source not to have more generators";
-	  if generators N' % gb N != 0 then error "inducedMap: expected new target not to have more generators";
 	  if g % gbN' != 0 then error "inducedMap: expected matrix to induce a map";
 	  if not isWellDefined f' then error "inducedMap: expected matrix to induce a well-defined map";
 	  );

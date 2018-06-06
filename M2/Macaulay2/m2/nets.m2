@@ -52,7 +52,7 @@ toString Sequence := s -> (
      else concatenate("(",between(",",toStringn \ s),")")
      )
 net Command := toString Command := toExternalString Command := f -> (
-     if hasAttribute(f,ReverseDictionary) then return toString getAttribute(f,ReverseDictionary) else "{*Command*}"
+     if hasAttribute(f,ReverseDictionary) then return toString getAttribute(f,ReverseDictionary) else "-*Command*-"
      )
 
 toExternalString Function := f -> (
@@ -65,14 +65,14 @@ toExternalString Function := f -> (
 net Function := toString Function := f -> (
      if hasAttribute(f,ReverseDictionary) then return toString getAttribute(f,ReverseDictionary);
      t := locate f;
-     if t === null then "{*Function*}" 
-     else concatenate("{*Function[", t#0, ":", toString t#1| ":", toString (t#2+1), "-", toString t#3| ":", toString (t#4+1), "]*}")
+     if t === null then "-*Function*-" 
+     else concatenate("-*Function[", t#0, ":", toString t#1| ":", toString (t#2+1), "-", toString t#3| ":", toString (t#4+1), "]*-")
      )
 
 net FunctionBody := toString FunctionBody := f -> (
      t := locate f;
-     if t === null then "{*FunctionBody*}" 
-     else concatenate("{*FunctionBody[", t#0, ":", toString t#1| ":", toString (t#2+1), "-", toString t#3| ":", toString (t#4+1), "]*}")
+     if t === null then "-*FunctionBody*-" 
+     else concatenate("-*FunctionBody[", t#0, ":", toString t#1| ":", toString (t#2+1), "-", toString t#3| ":", toString (t#4+1), "]*-")
      )
 
 toExternalString Manipulator := f -> (
@@ -169,13 +169,19 @@ net List := x -> horizontalJoin deepSplice (
      toSequence between(comma,apply(x,netn)),
      "}")
 
-VerticalList = new SelfInitializingType of List
-VerticalList.synonym = "vertical list"
-net VerticalList := x -> if #x === 0 then "{}" else (
-     n := stack apply(x,net);
+embrace = n -> (
      h := height n;
      d := depth n;
      horizontalJoin("{"^(h,d), n, "}"^(h,d)))
+
+VerticalList = new SelfInitializingType of List
+VerticalList.synonym = "vertical list"
+net VerticalList := x -> if #x === 0 then "{}" else embrace stack apply(x,net)
+
+NumberedVerticalList = new SelfInitializingType of VerticalList
+NumberedVerticalList.synonym = "numbered vertical list"
+net NumberedVerticalList := x -> if #x === 0 then "{}" else embrace stack apply(#x,i -> net (i => x#i));
+
 net Array := x -> horizontalJoin deepSplice (
      "[",
      toSequence between(comma,apply(x,netn)),

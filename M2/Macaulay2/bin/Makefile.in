@@ -7,7 +7,6 @@ NORULES = yes
 include ../../include/config.Makefile
 include ../d/Makefile.files
 include @srcdir@/../e/Makefile.files
-include @srcdir@/../e/f4/Makefile.files
 include @srcdir@/../system/Makefile.files
 include @srcdir@/../kernel/bibasis/Makefile.files
 
@@ -21,7 +20,6 @@ include @srcdir@/../kernel/bibasis/Makefile.files
 M2_OBJECTS := $(M2_OBJECTS:%=../d/%) 
 M2_OBJECTS += $(patsubst %, ../d/%.o, $(M2_DNAMES))
 M2_OBJECTS += $(ENGINE_OFILES:%=../e/%)
-M2_OBJECTS += $(F4_OBJECT_FILES:%=../e/f4/%) 
 M2_OBJECTS += $(SYSTEM_OFILES:%=../system/%) 
 M2_OBJECTS += $(BIBASIS_OFILES:%=../kernel/bibasis/%) 
 
@@ -36,6 +34,8 @@ $(M2SCRIPT): M2
 relink:
 	rm -f $(EXEFILE)
 	$(MAKE)
+
+foo : ; : @libdir@ $(BUILTLIBPATH)
 
 check: $(EXEFILE)
 	LD_LIBRARY_PATH="$(BUILTLIBPATH)/lib:$$LD_LIBRARY_PATH" $< --check 1 --stop -E "exit 0"
@@ -156,12 +156,9 @@ endif
 ###################### libraries
 
 # the order of this list should agree with that in ../../configure.ac
-M2_LIBRARIES +=  @BUILTLIBS@
+M2_LIBRARIES +=  @BUILTLIBS@ @LINALGLIBS@
 M2_LIBRARIES +=  $(TOSTATIC) @LIBS_STATIC@
 M2_LIBRARIES +=  $(MAYBESTATIC) @LIBS_EITHER@
-
-# I'm not sure whether compiling statically with libstdc++ is a good idea
-M2_LIBRARIES += -lstdc++
 
 M2_LDFLAGS += @FCLIBS_FLAGS@
 M2_LIBRARIES += $(UNSTATIC) @LIBS_DYNAMIC@ $(TOSTATIC) @FCLIBS_STATIC@ $(UNSTATIC) @FCLIBS_DYNAMIC@
@@ -178,8 +175,10 @@ M2_LIBRARIES := -L../d -lM2inits2 $(M2_LIBRARIES)
 else
 M2_LIBRARIES := $(M2_LIBRARIES) -L../d -lM2inits2
 endif
-M2_LIBDEPS += ../d/libM2inits2.a				\
-	$(foreach S, @BUILDSUBLIST@, @abs_top_builddir@/submodules/$S/.libs/lib$S.a)
+
+M2_LIBDEPS += ../d/libM2inits2.a $(LIBDEPS_FOR_BUILD)
+M2_LIBRARIES += $(LDLIBS_FOR_BUILD)
+
 ifeq (@CONSTRUCTOR_ORDER_OBJ@,LR)
 M2_OBJECTS := ../d/M2inits.o $(M2_OBJECTS)
 else
@@ -192,7 +191,7 @@ clean::; rm -f $(EXEFILE) timestamp.o
 $(EXEFILE): $(M2_OBJECTS) $(M2_LIBDEPS) | @pre_bindir@
 	@ echo "compiling timestamp.c"
 	$(COMPILE.c) @srcdir@/timestamp.c -o timestamp.o
-	time @CC@ $(M2_LDFLAGS) timestamp.o $(M2_OBJECTS) $(M2_LIBRARIES) -o "$@".tmp
+	time @CXX@ $(M2_LDFLAGS) timestamp.o $(M2_OBJECTS) $(M2_LIBRARIES) -o "$@".tmp
 ifneq ("$(EXECSTACK)","no")
 	@ if [ -x /usr/bin/execstack ] ;\
 	  then if (set -x ; execstack -q "$@".tmp; execstack -c "$@".tmp ) ; \

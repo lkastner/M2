@@ -28,6 +28,14 @@ TEST ///
   assert(C.dd_1 == 0)
   assert(length C == 0)
 
+  assert(betti'ans == minimalBetti (ideal I_*))
+  assert(betti'ans == minimalBetti (ideal I_*, LengthLimit=>5))
+  assert(betti'ans == minimalBetti (ideal I_*, LengthLimit=>0))
+  assert((new BettiTally from {}) === minimalBetti (ideal I_*, LengthLimit=>-1))
+  assert(betti'ans == minimalBetti (ideal I_*, LengthLimit=>1000))  
+  assert(betti'ans == minimalBetti (ideal I_*, DegreeLimit=>1000))  
+  assert(betti'ans == minimalBetti (ideal I_*, DegreeLimit=>-1000))
+
   I = trim ideal(0_R)
   C = res(I, FastNonminimal => true)
   betti'ans = new BettiTally from {(0,{0},0) => 1}
@@ -35,6 +43,28 @@ TEST ///
   assert(C.dd_1 == 0)
   assert(length C == 0)
   assert(C.dd^2 == 0)
+
+  I = trim ideal(0_R)
+  assert(betti'ans == minimalBetti I)
+
+  I = trim ideal(0_R)
+  assert(betti'ans == minimalBetti (I, LengthLimit=>5))
+
+  I = trim ideal(0_R)
+  assert(betti'ans == minimalBetti (I, LengthLimit=>0))
+
+  I = trim ideal(0_R)
+  assert((new BettiTally from {}) == minimalBetti (I, LengthLimit=>-1))
+
+  I = trim ideal(0_R)
+  assert(betti'ans == minimalBetti (I, LengthLimit=>1000))  
+
+  I = trim ideal(0_R)
+  assert(betti'ans == minimalBetti (I, DegreeLimit=>1000))  
+
+  I = trim ideal(0_R)
+  assert(betti'ans == minimalBetti (I, DegreeLimit=>-1000)) 
+
 ///
 
 TEST ///
@@ -48,6 +78,14 @@ TEST ///
   assert(C.dd_1 == 1)
   assert(length C == 1)
   assert(C.dd^2 == 0)
+  
+  assert(betti'ans == minimalBetti (ideal I_*))
+  assert(betti'ans == minimalBetti (ideal I_*, LengthLimit=>5))
+  assert(betti'ans == minimalBetti (ideal I_*, LengthLimit=>0))
+  assert(betti'ans == minimalBetti (ideal I_*, LengthLimit=>-1))
+  assert(betti'ans == minimalBetti (ideal I_*, LengthLimit=>1000))  
+  assert(betti'ans == minimalBetti (ideal I_*, DegreeLimit=>1000))  
+  assert(betti'ans == minimalBetti (ideal I_*, DegreeLimit=>-1000))
 ///
 
 TEST ///
@@ -87,7 +125,9 @@ TEST ///
   B1 = betti res I
   C = res(ideal(I_*), FastNonminimal=>true)
   B2 = betti(C, Minimize=>true)
+  B3 = minimalBetti ideal(I_*)
   assert(B1 == B2)
+  assert(B1 == B3)
   betti C
   C.dd_-1
   C.dd_0
@@ -154,12 +194,13 @@ TEST ///
   M = coker map(F,,{{a,0,0},{0,b,0},{0,0,c}})
   assert isHomogeneous M  
   C = res(M, FastNonminimal => true)
-  betti res M == betti C
+  assert(betti res M == betti C)
   for i from 2 to length C do assert(C.dd_(i-1) * C.dd_i == 0)  
 
-  betti(C, Minimize=>true)
+  M2 = coker map(F,,{{a,0,0},{0,b,0},{0,0,c}})
+  assert(minimalBetti M2 == betti C) -- doesn't always hold, but does here.
+  assert(minimalBetti M2 == betti(C, Minimize=>true))
   assert isHomogeneous C
-  C.dd
 ///
 
 TEST ///
@@ -183,6 +224,58 @@ TEST ///
   for i from 2 to length C do assert(C.dd_(i-1) * C.dd_i == 0)
 ///
 
+///
+  -- memory leak test, not run in general.
+  R = ZZ/101[vars(0..17)]
+  m1 = genericMatrix(R,a,3,3)
+  m2 = genericMatrix(R,j,3,3)
+  I = ideal(m1*m2-m2*m1)
+  elapsedTime for i from 1 to 1000 do (
+      J = ideal I_*;
+      res J;
+      )
+  debug Core
+  engineMemory()
+
+  elapsedTime for i from 1 to 1000 do (
+      J = ideal I_*;
+      res(J, Strategy=>0);
+      )
+  debug Core
+  engineMemory()
+
+  elapsedTime for i from 1 to 1000 do (
+      J = ideal I_*;
+      res(J, Strategy=>2);
+      )
+  debug Core
+  engineMemory()
+
+  elapsedTime for i from 1 to 1000 do (
+      J = ideal I_*;
+      res(J, Strategy=>3);
+      )
+  debug Core
+  engineMemory()
+
+  elapsedTime for i from 1 to 1000 do (
+      J = ideal I_*;
+      res(J, Strategy=>4);
+      )
+  debug Core
+  engineMemory()
+  J = null
+  collectGarbage()
+  engineMemory()  
+
+  elapsedTime for i from 1 to 10 list (
+      J = ideal I_*;
+      res(J, Strategy=>4)
+      );
+  debug Core
+  engineMemory()
+///
+
 TEST ///  
   R = ZZ/101[vars(0..17)]
   m1 = genericMatrix(R,a,3,3)
@@ -203,6 +296,7 @@ TEST ///
   assert(rawBetti(raw C.Resolution, 1) == betti(C))
   assert(rawBetti(raw C.Resolution, 0) == betti C)
   assert(rawBetti(raw C.Resolution, 4) == betti(C, Minimize=>true))
+  rawBetti(raw C.Resolution, 5)
   --rawBetti(raw C.Resolution, 2) -- not implemented yet
   --rawBetti(raw C.Resolution, 3) -- not implemented yet
 
@@ -253,73 +347,6 @@ TEST ///
   C2 = res(ideal gens gb I, Strategy=>0)
   rawBetti(raw C2.Resolution, 1)
   rawBetti(raw C2.Resolution, 0)  
-///
-
-TEST ///
-  -- this is a small-ish example used to get the logic of matrix building right
-  setRandomSeed 0
-  kk = ZZ/101
-  R = kk[vars(0..3)]
-  I = ideal fromDual random(R^1, R^{-3});
-  C = res(I, FastNonminimal => true)
-  
-  I = ideal(I_*)
-  elapsedTime C1 = res(I, FastNonminimal => true, DegreeLimit=>1) -- DOES NOTHING (i.e. does the whole thing)
-  assert(betti(C,Minimize=>true) != betti(C1,Minimize=>true)) -- totally non-minimal, so maybe it did do something. ACTUALLY: returns without doing ranks
-  betti C1
-  elapsedTime C2 = res(I, FastNonminimal => true)
-  betti C2 == betti C
-  assert(C.dd^2 == 0)
-  assert(isHomogeneous C)
-  C1 = betti res ideal(I_*)
-  assert(betti(C,Minimize=>true) == betti(C1,Minimize=>true))
-///
-
-TEST ///  
-  kk = ZZ/101
-  nvars = 9
-  R = kk[vars(0..nvars-1)]
-  setRandomSeed 0
-  I = ideal fromDual random(R^1, R^{-3});
-  gbTrace=2
-  elapsedTime C = res(I, FastNonminimal => true)
-  betti(C, Minimize=>true)
-  betti C
-///
-
-///
-  -- disabled since it takes too long
-  kk = ZZ/101
-  nvars = 13
-  R = kk[vars(0..nvars-1)]
-  setRandomSeed 0
-  I = ideal fromDual random(R^1, R^{-3});
-  gbTrace=2
-  elapsedTime C = res(I, FastNonminimal => true) -- 49.39 seconds on MBP
-///
-
-///  
-  -- disables since it is right on the edge of limits, so sometimes fails sometimes succeeds.
-  kk = ZZ/101
-  R = kk[vars(0..10)]
-  setRandomSeed 0
-  I = ideal fromDual random(R^1, R^{-3});
-  elapsedTime C = res(I, FastNonminimal => true)
-  betti'ans = new BettiTally from {
-      (0,{0},0) => 1, 
-      (1,{2},2) => 55, 
-      (2,{3},3) => 320, 
-      (3,{4},4) => 891, 
-      (4,{5},5) => 1408,
-      (5,{6},6) => 1155, 
-      (6,{8},8) => 1155, 
-      (7,{9},9) => 1408, 
-      (8,{10},10) => 891, 
-      (9,{11},11) => 320, 
-      (10,{12},12) => 55, 
-      (11,{14},14) => 1
-      }
-  assert(betti C == betti'ans)
 ///
 
 ///
@@ -447,6 +474,76 @@ TEST ///
   time gens gb m;
   time C1 = res(coker m, FastNonminimal => true, LengthLimit=>7)
   betti(C1, Minimize=>true)
+///
+
+
+TEST ///
+  -- this is a small-ish example used to get the logic of matrix building right
+  setRandomSeed 0
+  kk = ZZ/101
+  R = kk[vars(0..3)]
+  I = ideal fromDual random(R^1, R^{-3});
+  C = res(I, FastNonminimal => true)
+  
+  I = ideal(I_*)
+  elapsedTime C1 = res(I, FastNonminimal => true, DegreeLimit=>1) -- DOES NOTHING (i.e. does the whole thing)
+----  assert(betti(C,Minimize=>true) != betti(C1,Minimize=>true)) -- totally non-minimal, so maybe it did do something. ACTUALLY: returns without doing ranks
+  betti C1
+  elapsedTime C2 = res(I, FastNonminimal => true)
+  betti C2 == betti C
+  assert(C.dd^2 == 0)
+  assert(isHomogeneous C)
+  C1 = betti res ideal(I_*)
+  assert(betti(C,Minimize=>true) == betti(C1,Minimize=>true))
+///
+
+TEST ///  
+  kk = ZZ/101
+  nvars = 9
+  R = kk[vars(0..nvars-1)]
+  setRandomSeed 0
+  I = ideal fromDual random(R^1, R^{-3});
+  gbTrace=2
+  elapsedTime C = res(I, FastNonminimal => true)
+  betti(C, Minimize=>true)
+  betti C
+///
+
+-* TEST *- ///
+  -- takes too much memory
+  -- might take too long ...
+  kk = ZZ/101
+  nvars = 13
+  R = kk[vars(0..nvars-1)]
+  setRandomSeed 0
+  I = ideal fromDual random(R^1, R^{-3});
+  gbTrace=2
+  elapsedTime C = res(I, FastNonminimal => true) -- 49.39 seconds on MBP
+///
+
+-* TEST *- ///  
+  -- disabled most recently because it gives the wrong answer
+  -- disabled originally since it is right on the edge of limits, so sometimes fails sometimes succeeds.
+  kk = ZZ/101
+  R = kk[vars(0..10)]
+  setRandomSeed 0
+  I = ideal fromDual random(R^1, R^{-3});
+  elapsedTime C = res(I, FastNonminimal => true)
+  betti'ans = new BettiTally from {
+      (0,{0},0) => 1, 
+      (1,{2},2) => 55, 
+      (2,{3},3) => 320, 
+      (3,{4},4) => 891, 
+      (4,{5},5) => 1408,
+      (5,{6},6) => 1155, 
+      (6,{8},8) => 1155, 
+      (7,{9},9) => 1408, 
+      (8,{10},10) => 891, 
+      (9,{11},11) => 320, 
+      (10,{12},12) => 55, 
+      (11,{14},14) => 1
+      }
+  assert(betti C == betti'ans)
 ///
 
 TEST ///

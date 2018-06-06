@@ -8,7 +8,7 @@
 ---------------------------------------------------------------------------
 newPackage("Polyhedra",
     Headline => "A package for computations with convex polyhedra",
-    Version => "1.3",
+    Version => "1.9",
     Date => "August 21, 2014",
     AuxiliaryFiles => true,
     Certification => {
@@ -25,10 +25,19 @@ newPackage("Polyhedra",
 	 "volume URI" => "http://j-sag.org/Volume1/"
 	 },
     Authors => {
-         {Name => "René Birkner",
-	  HomePage => "http://page.mi.fu-berlin.de/rbirkner/index.htm",
-	  Email => "rbirkner@mi.fu-berlin.de"}},
-    DebuggingMode => false
+      {
+         Name => "René Birkner",
+        HomePage => "http://page.mi.fu-berlin.de/rbirkner/index.htm",
+        Email => "rbirkner@mi.fu-berlin.de"
+        },
+     {
+        Name => "Lars Kastner (Maintaining author)",
+        HomePage => "http://page.mi.fu-berlin.de/lkastner/",
+        Email => "k.l@fu-berlin.de"
+     }
+     },
+    DebuggingMode => false,
+    PackageExports=>{"FourTiTwo"}
     )
 
 ---------------------------------------------------------------------------
@@ -51,5 +60,5 @@ newPackage("Polyhedra",
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 ---------------------------------------------------------------------------
-
+<< "Hello." << endl;
 load "./Polyhedra/loadFile.m2"

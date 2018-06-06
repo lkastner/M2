@@ -1,34 +1,28 @@
-// Copyright 2014 Michael E. Stillman
+// Copyright 2014-2016 Michael E. Stillman
 
 #ifndef _res_f4_hpp_
 #define _res_f4_hpp_
 
-#include "memblock.hpp"
-#include "res-f4-mem.hpp"
+#include "res-memblock.hpp"
 #include "monhashtable.hpp"
 #include "res-poly-ring.hpp"
 #include <assert.h>
-#define M2_ASSERT assert
 
-class ResGausser;
-class ResMonoid;
 class SchreyerFrame;
+
 /////////////////////////////////////////////////////////////////////////////
 
 class F4Res
 {
   friend class ResColumnsSorter;
-public:
-  F4Res(
-        SchreyerFrame& res
-       );
 
-  ~F4Res() {
-  }
+ public:
+  F4Res(SchreyerFrame& res);
+
+  ~F4Res();
 
   SchreyerFrame& frame() { return mFrame; }
   const SchreyerFrame& frame() const { return mFrame; }
-
   // Constructs the elements of the GB at level 'lev', in the given degree.
   // The following must have been done:
   //    construct(lev, degree-1)
@@ -40,26 +34,29 @@ public:
   const ResGausser& resGausser() const { return mRing.resGausser(); }
   const ResMonoid& monoid() const { return mRing.monoid(); }
   const ResPolyRing& ring() const { return mRing; }
-  
-private:
-  struct Row {
-    packed_monomial mLeadTerm; // monomial (level lev-1) giving rise to this row
+ private:
+  struct Row
+  {
+    res_packed_monomial
+        mLeadTerm;  // monomial (level lev-1) giving rise to this row
     // The following two should have the same length.
-    std::vector<ComponentIndex> mComponents; // indices into mColumns
-    std::vector<FieldElement> mCoeffs;
-    //ResGausser::CoefficientArray mCoeffs; // from an ResF4Mem..
+    std::vector<ComponentIndex> mComponents;  // indices into mColumns
+    CoefficientVector mCoeffs;
     Row() : mLeadTerm(nullptr) {}
   };
 
   ////////////////////////////////////
   // Functions for construction //////
   ////////////////////////////////////
-  void resetMatrix(int lev, int degree); // remember to clearMatrix before calling this.
+  void resetMatrix(int lev,
+                   int degree);  // remember to clearMatrix before calling this.
   void clearMatrix();
-  bool findDivisor(packed_monomial m, packed_monomial result);
-  ComponentIndex processCurrentMonomial(); // process mNextMonomial
-  ComponentIndex processMonomialProduct(packed_monomial m, packed_monomial n, int& result_sign_if_skew);
-    // if result_sign_if_skew is set to 0, then result is set to -1.
+  bool findDivisor(res_const_packed_monomial m, res_packed_monomial result);
+  ComponentIndex processCurrentMonomial();  // process mNextMonomial
+  ComponentIndex processMonomialProduct(res_const_packed_monomial m,
+                                        res_const_packed_monomial n,
+                                        int& result_sign_if_skew);
+  // if result_sign_if_skew is set to 0, then result is set to -1.
   void loadRow(Row& r);
   void reorderColumns();
   void makeMatrix();
@@ -70,7 +67,7 @@ private:
   void debugOutputMatrix(std::vector<Row>&);
   void debugOutputMatrixSparse(std::vector<Row>&);
   void debugOutputReducerMatrix();
-  void debugOutputSPairMatrix();  
+  void debugOutputSPairMatrix();
   ////////////////////////////////////
   // Data for construct(lev,degree) //
   ////////////////////////////////////
@@ -83,17 +80,27 @@ private:
   int mThisLevel;
   int mThisDegree;
   long mNextReducerToProcess;
-  packed_monomial mNextMonom;
+  res_packed_monomial mNextMonom;
 
-  const ResMonomialsWithComponent* mSchreyerRes; // Support structure for mHashTable
-  MonomialHashTable<ResMonomialsWithComponent> mHashTable; // keys: monomials at level lev-2, values: indices into mColumns.
+  std::unique_ptr<const ResMonomialsWithComponent>
+      mSchreyerRes;  // Support structure for mHashTable
+  //  const ResMonomialsWithComponent* mSchreyerRes; // Support structure for
+  //  mHashTable
+  MonomialHashTable<ResMonomialsWithComponent> mHashTable;  // keys: monomials
+                                                            // at level lev-2,
+                                                            // values: indices
+                                                            // into mColumns.
   // or: -1: means is determined to not need to be a column.
 
   std::vector<Row> mReducers;  // columns: mColumns.  This is a square matrix.
-  std::vector<Row> mSPairs;  // columns: also mColumns  One row per element at (lev,degree).
-  std::vector<long> mSPairComponents; // index into mFrame.level(mThisLevel)
-  std::vector<packed_monomial> mColumns; // all the monomials at level lev-2 we need to consider
-  MemoryBlock<monomial_word> mMonomSpace; // for monomials stored in this (lev,degree) in mColumns and the lead terms in Row.
+  std::vector<Row>
+      mSPairs;  // columns: also mColumns  One row per element at (lev,degree).
+  std::vector<long> mSPairComponents;  // index into mFrame.level(mThisLevel)
+  std::vector<res_packed_monomial>
+      mColumns;  // all the monomials at level lev-2 we need to consider
+  MemoryBlock<res_monomial_word> mMonomSpace;  // for monomials stored in this
+                                               // (lev,degree) in mColumns and
+                                               // the lead terms in Row.
 };
 
 #endif

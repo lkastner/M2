@@ -161,7 +161,7 @@ document {
      "This method for entering a string involves no escape characters, so
      it can be used for easily inserting large chunks of text into a string
      without treating the characters ", TT "\\", " and ", TT "\"", " specially.
-     A series of more than 3 slashes can be represented within the string by doubling all but the
+     A series of more than 3 slashes can be represented before the end of the string by doubling all but the
      last two, and a series of 1 or more slashes can be represented at the end of the string by doubling
      each of them; this allows an arbitrary string to be represented.",
      EXAMPLE {
@@ -189,9 +189,9 @@ document {
       \\xxx           ascii character with octal value xxx
       \\uxxxx         unicode character with hex value xxxx, encoded with utf-8",
      EXAMPLE lines ///
-     " \" \f \r \\ \t \013 \u4f60 "
-     ascii oo
-     utf8 ooo
+     x = " \" \f \r \\ \t \013 \u4f60 ";
+     ascii x
+     utf8 x
      ///,
      SeeAlso => {String, "///", ascii, utf8}
      }
@@ -316,7 +316,7 @@ document {
 	  ),
      PARA{
 	  "The value is a list of the pieces, the number of which is one
-	  more than the number of occurrences of d in s, so that the pieces
+	  more than the number of occurrences of nl in s, so that the pieces
 	  may be reassembled with ", TO "demark", " to get the original string.",
 	  },
      PARA{

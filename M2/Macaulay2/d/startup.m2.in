@@ -148,7 +148,7 @@ if firstTime then (
 
      copyright = (
 	  "Macaulay2, version " | version#"VERSION" | newline
-	  | "Copyright 2016 Daniel R. Grayson and Michael E. Stillman:" | newline
+	  | "Copyright 2017 Daniel R. Grayson and Michael E. Stillman:" | newline
      	  | "  source code licensed under the GNU General Public License version 2 or 3;" | newline
      	  | "  this binary code licensed under the GNU General Public License version 3." | newline
      	  -- our binary code is linked with :
@@ -355,12 +355,12 @@ nosetup := false
 noinitfile = false
 interpreter := commandInterpreter
 
-{*
+-*
 getRealPath := fn -> (					    -- use this later if realpath doesn't work
      local s;
      while ( s = readlink fn; s =!= null ) do fn = if isAbsolutePath s then s else minimizeFilename(fn|"/../"|s);
      fn)
-*}
+*-
 
 pathsearch := e -> (
      if not isFixedExecPath e then (
@@ -408,6 +408,7 @@ usage := arg -> (
      << "    --texmacs          TeXmacs session mode" << newline
      << "    --version          print version number and exit" << newline
      << "    --no-personality   don't set the personality and re-exec M2 (linux only)" << newline
+     << "    --no-preload       don't load the preloaded packages" << newline;
      << "    --no-prompts       print no input prompts" << newline;
      << "    --no-randomize     don't set the random number seed based on the date" << newline
      << "    --no-readline      don't use readline" << newline;
@@ -476,6 +477,7 @@ action := hashTable {
      "--no-randomize" => arg -> arg,
      "--no-time" => arg -> arg,
      "--no-personality" => arg -> arg,
+     "--no-preload" => arg -> arg,
      "--no-prompts" => arg -> if phase == 3 then noPrompts(),
      "--no-readline" => arg -> arg,			    -- handled in d/stdio.d
      "--no-setup" => arg -> if phase == 1 then noloaddata = nosetup = true,
@@ -585,13 +587,13 @@ processCommandLineOptions := phase0 -> (			    -- 3 passes
 if firstTime then processCommandLineOptions 1
 
 exe = minimizeFilename (
-     {*
+     -*
      -- this can be a reliable way to get the executable in linux
      -- but we don't want to use it because we don't want to chase symbolic links and it does that for us
      processExe := "/proc/self/exe";
      if fileExists processExe and readlink processExe =!= null then readlink processExe
      else 
-     *}
+     *-
      if isAbsolutePath commandLine#0 then commandLine#0 else
      if isStablePath commandLine#0 then concatenate(currentDirectory()|commandLine#0)
      else pathsearch commandLine#0)

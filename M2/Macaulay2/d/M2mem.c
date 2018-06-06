@@ -6,10 +6,8 @@
 #include "debug.h"
 
 #ifndef NDEBUG
-  #include <M2/config.h>
-  #ifndef USE_THREADS
-    #define __thread
-  #endif
+#include <M2/config.h>
+#define __thread
 static __thread bool in_getmem = FALSE;
 static inline void enter_getmem() {
   #if 0
@@ -45,6 +43,7 @@ void outofmem2(size_t new) {
 char *getmem(size_t n)
 {
   char *p;
+  TRAPCHK_SIZE(n);
   enter_getmem();
   p = GC_MALLOC(n);		/* GC_MALLOC clears its memory, but getmem doesn't guarntee to */
   if (p == NULL) outofmem2(n);

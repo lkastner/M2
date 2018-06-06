@@ -143,13 +143,13 @@ mathML ChainComplex := C -> (
 mathML Option := s -> concatenate("<mrow>",mathML s#0, doublerightarrow, mathML s#1, "</mrow>")
 mathML Type :=
 mathML ImmutableType := R -> mathML expression R
-mathML Tally := 
+mathML VirtualTally :=
 mathML HashTable := s -> concatenate( "<mrow>",mathML class s,leftbrace, mtable sort apply(pairs s, (k,v) -> {mathML k, doublerightarrow, mathML v}), rightbrace,"</mrow>", newline )
 mathML MutableHashTable := x -> (
      if hasAttribute(x,ReverseDictionary) then mathML getAttribute(x,ReverseDictionary)
      else mrow ( mathML class x, nest("mtext",if #x > 0 then ("{...", toString(#x), "...}") else "{}" )))
 mathML BettiTally := v -> mtableML rawBettiTally v
-mathML CacheFunction := f -> mathML "{*a cache function*}"
+mathML CacheFunction := f -> mathML "-*a cache function*-"
 -- these are all provisional:
 mathML CoherentSheaf :=
 mathML Ideal :=

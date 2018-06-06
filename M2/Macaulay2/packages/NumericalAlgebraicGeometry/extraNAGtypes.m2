@@ -120,21 +120,26 @@ specialize (GateParameterHomotopy,MutableMatrix) := (PH, M) -> (
 getVarGates = method()
 getVarGates PolynomialRing := R -> if R#?"var gates" then R#"var gates" else R#"var gates" = apply(gens R, v->inputGate [v])
 
+gatePolynomial = method()
+gatePolynomial RingElement := p -> (
+    -- one naive way of converting a sparse polynomial to a circuit  
+    X := getVarGates ring p;
+    sumGate apply(listForm p, mc->(
+	    (m,c) := mc;
+	    c*product(#m,i->X#i^(m#i))
+	    ))
+    ) 
+	
 makeGateMatrix = method(Options=>{Parameters=>{}})
 makeGateMatrix PolySystem := o -> F -> (
     R := ring F; 
-    if not isSubset(o.Parameters, gens R) then "parameters do appear in the ring";
+    if not isSubset(o.Parameters, gens R) then "some parameters are not among generators of the ring";
     X := getVarGates R;
     F.Variables = X_(positions(gens R, x->not member(x,o.Parameters)));  
     F.NumberOfVariables = #F.Variables; -- reconsile 
     F.Parameters =X_(positions(gens R, x->member(x,o.Parameters)));
     polys := flatten entries F.PolyMap;
-    -- one naive way of converting a sparse system to a circuit  
-    F.GateMatrix = gateMatrix apply(polys, p->{ sumGate apply(listForm p,mc->(
-		    (m,c) := mc;
-		    c*product(#m,i->X#i^(m#i))
-		    )) }
-    	)   
+    F.GateMatrix = gateMatrix apply(polys, p->{gatePolynomial p})   
     ) 
  
 gateMatrix PolySystem := F -> if F.?GateMatrix then F.GateMatrix else makeGateMatrix F
@@ -214,6 +219,32 @@ segmentHomotopy (PolySystem, PolySystem) := o -> (S,T) -> (
     gateHomotopy(o.gamma*(1-tt)*gateMatrix S + tt*gateMatrix T, 
 	gateMatrix{getVarGates R}, tt, Strategy=>compress)
     )
+
+segmentHomotopyProjective = method(Options=>{gamma=>1})
+segmentHomotopyProjective (List, List) := o -> (S,T) -> segmentHomotopyProjective(polySystem S, polySystem T, o)
+segmentHomotopyProjective (PolySystem, PolySystem) := o -> (S,T) -> (
+    -- check if S and T are homogeneous!!!
+    R := ring T;
+    if R =!= ring S then error "systems in the same ring expected";  
+    c := symbol c;
+    coeffs := matrix{ apply(numgens R, i->inputGate c_i) };
+    chartHyperPlane := coeffs * transpose matrix {getVarGates R} + matrix{{-1}}; 
+    t := local t;
+    tt := inputGate [t];
+    gateHomotopy((o.gamma*(1-tt)*gateMatrix S + tt*gateMatrix T)||chartHyperPlane, 
+	gateMatrix{getVarGates R}, tt, Parameters=>coeffs, Strategy=>compress)
+    )
+
+TEST /// 
+debug needsPackage "NumericalAlgebraicGeometry"
+R = CC[x,y,z];
+PH = segmentHomotopyProjective({x^3-z^3,y^2-z^2},{x*y*z, x^2+y^2+z^2},gamma=>1+ii)
+Hz = specialize(PH,transpose matrix{{0,0,1}})
+start = flatten table(3,2,(i,j)->point{{exp(ii*2*pi*i/3),exp(ii*2*pi*j/2),1}})
+sols = trackHomotopy(Hz,start)
+assert (#select(sols, s->status s == Regular) == 4)
+///
+
 -------------------------------------------------------
 -- trackHomotopy tests
 TEST /// 
