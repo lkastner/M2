@@ -235,3 +235,5 @@ checkConesForMaximality List := cones -> (
 	)
 )
 
+numFacets = method()
+numRays = method()

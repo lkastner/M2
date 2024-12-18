@@ -1,5 +1,4 @@
-compute#Cone#isWellDefined = method()
-compute#Cone#isWellDefined Cone := C -> (
+isWellDefined Cone := Boolean => (cacheValue symbol isWellDefined) (C -> (
    hasEnoughProperties := false;
    testDim := dim C;
    testAmbientDim := ambDim C;
@@ -32,31 +31,19 @@ compute#Cone#isWellDefined Cone := C -> (
       if not (C4 == C) then return false
    );
    return hasEnoughProperties
-)
+))
 
 
-compute#Cone#pointed = method()
-compute#Cone#pointed Cone := C -> (
-   rank linealitySpace C == 0
-)
 
 
-compute#Cone#smooth = method()
-compute#Cone#smooth Cone := C -> (
-   R := lift(transpose rays C,ZZ);
-   L := lift(transpose linealitySpace C, ZZ);
-   spanSmoothCone(R, L, dim C)
-)
-
-
-compute#Cone#nFacets = method()
-compute#Cone#nFacets Cone := C -> (
+numFacets Cone := C -> C.cache.numFacets ??= (
    numRows facets C
 )
 
+-- blah Ideal := I -> I.cache.blah ??= ( ... )
 
-compute#Cone#nRays = method()
-compute#Cone#nRays Cone := C -> (
+
+numRays Cone := C -> C.cache.numRays ??= (
    numColumns rays C
 )
 
@@ -98,7 +85,7 @@ compute#Cone#computedFacesThroughRays Cone := C -> (
    raysC := rays C;
    facetsC := facets C;
    ldim := rank linealitySpace C;
-   allFace := toList (0..(getProperty(C, nRays) - 1));
+   allFace := toList (0..((numRays C) - 1));
    result#0 = {allFace};
    ftrd := getProperty(C, facetsThroughRayData);
    if d>0 then (
@@ -127,8 +114,8 @@ compute#Cone#facetsThroughRayData = method()
 compute#Cone#facetsThroughRayData Cone := C -> (
    raysC := rays C;
    facetsC := facets C;
-   nFacetsC := getProperty(C, nFacets);
-   nRaysC := getProperty(C, nRays);
+   nFacetsC := numFacets C;
+   nRaysC := numRays C;
    apply(0..(nFacetsC -1), 
       i -> getDualFaceIndices(facetsC, raysC, {i})
    )
@@ -139,8 +126,8 @@ compute#Cone#raysThroughFacets = method()
 compute#Cone#raysThroughFacets Cone := C -> (
    raysC := rays C;
    facetsC := facets C;
-   nFacetsC := getProperty(C, nFacets);
-   nRaysC := getProperty(C, nRays);
+   nFacetsC := numFacets C;
+   nRaysC := numRays C;
    apply(0..(nRaysC -1), 
       i -> (
          ray := raysC_{i};

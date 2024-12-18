@@ -171,11 +171,10 @@ compute#Polyhedron#verticesThroughFacets Polyhedron := P -> (
 )
 
 
-compute#Polyhedron#isWellDefined = method()
-compute#Polyhedron#isWellDefined Polyhedron := P -> (
+isWellDefined Polyhedron := Boolean => (cacheValue symbol isWellDefined) (P -> (
    C := getProperty(P, underlyingCone);
    return isWellDefined C
-)
+))
 
 
 compute#Polyhedron#facetToFacetMap = method()

@@ -10,9 +10,6 @@ isSimplicial = method(TypicalValue => Boolean)
 isSimplicial PolyhedralObject := X -> getProperty(X, simplicial)
 
 
--- This method is never triggered, presumably because M2 applies isWellDefined for MutableHashTables
--- isWellDefined PolyhedralObject := X -> getProperty(X, isWellDefined)
-
 
 isFullDimensional = method(TypicalValue => Boolean)
 isFullDimensional PolyhedralObject := X -> ambDim X == dim X
@@ -25,15 +22,6 @@ rays PolyhedralObject := {} >> o -> PO -> getProperty(PO, rays)
 
 linealitySpace = method(TypicalValue => Matrix)
 linealitySpace PolyhedralObject := PO -> getProperty(PO, computedLinealityBasis)
-
-
-isWellDefined PolyhedralObject := Ph -> true
-
--- 
--- 	if instance(X,Cone) then (isPointed X and numColumns rays X == dim X)
--- 	else if instance(X,Fan) then all(maxCones X,isSimplicial)
--- 	else if instance(X,Polyhedron) then (isCompact X and numColumns vertices X == dim X + 1)
--- 	else all(maxPolyhedra X,isSimplicial)))
 
 
 --   INPUT : 'PO'  a Polyhedron, Cone, Fan or Polyhedral Complex
@@ -66,7 +54,6 @@ fVector PolyhedralObject := PO -> getProperty(PO, computedFVector)
 -------------------------------------------------------------------------------
 -- For fan and cone
 isPointed = method(TypicalValue => Boolean)
--- isSmooth = method(TypicalValue => Boolean)
 
 
 

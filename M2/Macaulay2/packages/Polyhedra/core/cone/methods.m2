@@ -14,15 +14,20 @@ facesAsCones(ZZ, Cone) := (d, C) -> (
 -- PURPOSE : Checks if the input is smooth
 --   INPUT : 'C'  a Cone
 --  OUTPUT : 'true' or 'false'
-isSmooth Cone := {} >> o -> C -> getProperty(C, smooth)
+isSmooth Cone := {} >> o -> C -> C.cache.smooth ??= (
+   R := lift(transpose rays C,ZZ);
+   L := lift(transpose linealitySpace C, ZZ);
+   spanSmoothCone(R, L, dim C)
+   )
 
 
 -- PURPOSE : Tests if a Cone is pointed
 --   INPUT : 'C'  a Cone
 --  OUTPUT : 'true' or 'false'
-isPointed Cone := C -> (
-   getProperty(C, pointed)
-)
+isPointed Cone := C -> C.cache.pointed ??= (
+   rank linealitySpace C == 0
+   )
+
 
 
 hilbertBasis = method(Options => true)

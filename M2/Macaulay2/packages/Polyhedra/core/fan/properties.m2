@@ -1,5 +1,4 @@
-compute#Fan#isWellDefined = method()
-compute#Fan#isWellDefined Fan := F -> (
+isWellDefined Fan := F -> F.cache.isWellDefined ??= (
    cones := getProperty(F, honestMaxObjects);
    n := #cones;
    for i from 0 to n-1 do (
