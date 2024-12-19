@@ -86,15 +86,39 @@ isWellDefined Fan := F -> F.cache.isWellDefined ??= (
 )
 
 
+-- whether or not F is smooth
+isSmooth Fan := {} >> o -> F -> F.cache.isSmooth ??= (
+    -- TODO: could it be better to run isSimplicial first?
+    try if not F.cache.isSimplicial then return false;
+    -- TODO: could this be faster?
+    -- if F.cache.?computedMaxCones then return all(computedMaxCones F, isSmooth);
+    R := rays F;
+    L := transpose linealitySpace F;
+    MC := maxCones F;
+    MC = apply(MC, m -> R_m);
+    -- defined in Polyhedra/helpers.m2
+    all(MC, r -> spanSmoothCone(transpose r, L))
+)
+
+
+-- whether or not F is simplicial
+isSimplicial Fan := F -> F.cache.isSimplicial ??= (
+    try if F.cache.isSmooth      then return true;
+    if F.cache.?computedMaxCones then return all(computedMaxCones F, isSimplicial);
+    R := rays F;
+    L := linealitySpace F;
+    all(maxCones F,
+	m -> (
+	    testmat := R_m | L;
+	    (numColumns testmat) == (rank testmat)
+	)
+    )
+)
+
+
 --   INPUT : 'F',  a Fan
 --  OUTPUT : 'true' or 'false'
 isPointed Fan := F -> all(computedMaxCones F, isPointed)
-
-
--- PURPOSE : Checks if the input is smooth
---   INPUT : 'F'  a Fan
---  OUTPUT : 'true' or 'false'
-isSmooth Fan := {} >> o -> F -> getProperty(F, smooth)
 
 
 isPolytopal = method(TypicalValue => Boolean)

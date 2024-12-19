@@ -1,33 +1,6 @@
-compute#Fan#smooth = method()
-compute#Fan#smooth Fan := F -> (
-   R := rays F;
-   L := transpose linealitySpace F;
-   MC := maxCones F;
-   MC = apply(MC, m -> R_m);
-   all(MC, r -> spanSmoothCone(transpose r, L))
-)
-
-
 compute#Fan#computedFVector = method()
 compute#Fan#computedFVector Fan := F -> (
    toList apply(0..(dim F), d -> #faces(dim F - d,F))
-)
-
-
-compute#Fan#simplicial = method()
-compute#Fan#simplicial Fan := F -> (
-   if hasProperty(F, honestMaxObjects) then
-      return all(computedMaxCones F, isSimplicial);
-   R := rays F;
-   L := linealitySpace F;
-   MC := maxCones F;
-   MC = apply(MC, m -> R_m);
-   all(MC, 
-      r -> (
-         testmat := r | L;
-         (numColumns testmat) == (rank testmat)
-      )
-   )
 )
 
 compute#Fan#pure = method()
