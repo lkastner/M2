@@ -241,7 +241,7 @@ document {
      of rays is modulo the lineality space. However, one can not access the above information 
      directly, because this is just a virtual hash table generated for the output. The data 
      describing a Cone is extracted by the functions included in this package. A Cone 
-     can be constructed as the positive hull (",TO coneFromVData,")of a set of rays or as the intersection 
+     can be constructed as the positive hull (",TO coneFromVData,") of a set of rays or as the intersection
      (",TO coneFromHData,") of a set of linear half-spaces and linear hyperplanes.",
      
      PARA{}, "As examples for the positive hull consider the following cones:",
@@ -267,7 +267,7 @@ document {
 	  " rays C"
 	  },
      
-     PARA{}, "See also",TO "Working with cones","."
+     PARA{}, "See also ", TO "Working with cones", "."
      
      }
 
