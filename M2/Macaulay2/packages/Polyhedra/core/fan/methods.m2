@@ -12,6 +12,7 @@ rays Fan := Matrix => {} >> o -> F -> F.cache.rays ??= (
 )
 
 
+-----------------------------------------------------------------------------
 -- returns a list of index lists for the generating Cones of the fan
 maxCones = method(TypicalValue => List)
 maxCones Fan := F -> F.cache.maxCones ??= (
@@ -61,6 +62,15 @@ honestMaxObjects Fan := HashTable => F -> F.cache.honestMaxObjects ??=
     new HashTable from apply(maxCones F, computedMaxCones F, identity)
 
 
+-----------------------------------------------------------------------------
+-- returns the dimension of F, i.e. maximum of the dimension of its cones
+dim Fan := F -> F.cache.dim ??= (
+    R := rays F;
+    L := linealitySpace F;
+    max apply(maxCones F, m -> rank(R_m | L))
+)
+
+-----------------------------------------------------------------------------
 -- whether or not F is well-defined
 isWellDefined Fan := F -> F.cache.isWellDefined ??= (
     cones := honestMaxObjects F;
@@ -166,6 +176,7 @@ isComplete Fan := F -> F.cache.isComplete ??= (
 )
 
 
+-----------------------------------------------------------------------------
 -- PURPOSE : Giving the k dimensional Cones of the Fan
 --   INPUT : (k,F)  where 'k' is a positive integer and F is a Fan 
 --  OUTPUT : a List of Cones

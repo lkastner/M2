@@ -11,7 +11,7 @@ rayProperties = set { rays, inputRays, inputLinealityGenerators, computedLineali
 
 -- TODO: complete this list from symbols.m2
 -- fanProperties = set { inputCones, ambientDimension,
---     computedDimension, computedComplete, computedPolytope, computedFVector,
+--     computedComplete, computedPolytope, computedFVector,
 --     computedLinealityBasis, computedLinealityGenerators, computedFacesThroughRays,
 --     polytopal, smooth, simplicial, pure, facetsThroughRayData, isWellDefined }
 
@@ -174,7 +174,7 @@ fanFromGfan List := Fan => gfanOutput -> (
    if (numColumns R == 0) then R = map(ZZ^(numRows L), ZZ^0, 0);
    if (numColumns L == 0) then L = map(ZZ^(numRows R), ZZ^0, 0);
     result := fan(R, L,              gfanOutput#2);
-    result.cache.computedDimension = gfanOutput#3;
+    result.cache.dim               = gfanOutput#3;
     result.cache.pure              = gfanOutput#4;
     result.cache.simplicial        = gfanOutput#5;
     result.cache.computedFVector   = gfanOutput#6;

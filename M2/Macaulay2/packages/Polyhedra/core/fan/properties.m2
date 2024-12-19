@@ -3,16 +3,6 @@ compute#Fan#computedFVector Fan := F -> (
    toList apply(0..(dim F), d -> #faces(dim F - d,F))
 )
 
-compute#Fan#computedDimension = method()
-compute#Fan#computedDimension Fan := F -> (
-   R := rays F;
-   MC := maxCones F;
-   L := linealitySpace F;
-   MC = apply(MC, m -> R_m);
-   MC = apply(MC, r -> rank (r | L));
-   max MC
-)
-
 
 compute#Fan#computedFacesThroughRays = method()
 compute#Fan#computedFacesThroughRays Fan := F -> (
