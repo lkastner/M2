@@ -10,7 +10,7 @@ compute#Fan = new MutableHashTable;
 rayProperties = set { rays, inputRays, inputLinealityGenerators, computedLinealityBasis }
 
 -- TODO: complete this list from symbols.m2
--- fanProperties = set { inputCones, ambientDimension, generatingObjects, honestMaxObjects,
+-- fanProperties = set { inputCones, ambientDimension,
 --     computedDimension, computedComplete, computedPolytope, computedFVector,
 --     computedLinealityBasis, computedLinealityGenerators, computedFacesThroughRays,
 --     polytopal, smooth, simplicial, pure, facetsThroughRayData, isWellDefined }
@@ -113,7 +113,7 @@ linearTransform(Fan, Matrix) := Fan => (F, A) -> (
     goodNewRays := makeRaysUniqueAndPrimitive(newRays, newLineality);
     new Fan from hashTable {
 	inputRays              => goodNewRays,
-	generatingObjects      => maxCones F,
+	maxCones               => maxCones F,
 	computedLinealityBasis => newLineality
     }
 )

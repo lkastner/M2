@@ -12,12 +12,39 @@ rays Fan := Matrix => {} >> o -> F -> F.cache.rays ??= (
 )
 
 
--- PURPOSE : Giving the generating Cones of the Fan
---   INPUT : 'F'  a Fan
---  OUTPUT : a List of Cones
+-- returns a list of index lists for the generating Cones of the fan
 maxCones = method(TypicalValue => List)
-maxCones Fan := F -> maxObjects F
+maxCones Fan := F -> F.cache.maxCones ??= (
+    -- TODO: could this be computed if honestMaxObjects is set?
+    cones := try F.cache.inputCones else error "no input cones given for the fan";
+    if F.cache.?inputRays then (
+	raysF := rays F;
+	inputRaysF := F.cache.inputRays;
+	linealityF := linealitySpace F;
+	-- defined in Polyhedra/helpers.m2
+	rc := rayCorrespondenceMap(inputRaysF, linealityF, raysF);
+	cones = apply(cones, C -> select(sort apply(C, e -> rc#e), e -> e != -1)));
+    cones = unique apply(cones, sort);
+    result := new MutableList;
+    -- TODO: simplify this
+    for C in cones do (
+	test := all(cones,
+	    c -> (
+		n := #((set c) * (set C));
+		if n == #C then (
+		    C == c
+		) else (
+		    true
+		)
+	    )
+	);
+	if test then result##result = C;
+    );
+    toList result
+)
 
+-- TODO: do we need this for general purposes, or can it be deprecated?
+maxObjects Fan := maxCones
 
 -- UNEXPORTED METHOD
 -- returns a list of maximal cones as honest cones
@@ -26,6 +53,12 @@ computedMaxCones Fan := List => F -> F.cache.computedMaxCones ??= (
     R := rays F;
     L := linealitySpace F;
     apply(maxCones F, m -> coneFromVData(R_m, L)))
+
+-- UNEXPORTED METHOD
+-- returns a hash table of maximal cones as honest cones
+honestMaxObjects = method()
+honestMaxObjects Fan := HashTable => F -> F.cache.honestMaxObjects ??=
+    new HashTable from apply(maxCones F, computedMaxCones F, identity)
 
 
 --   INPUT : 'F',  a Fan
@@ -63,7 +96,6 @@ polytope Fan := F -> getProperty(F, computedPolytope)
 
 isPure Fan := F -> getProperty(F, pure)
 isComplete Fan := F -> getProperty(F, computedComplete)
-maxObjects Fan := F -> getProperty(F, generatingObjects)
 
 objectsOfDim(ZZ, Fan) := (k,F) -> (
 	-- Checking for input errors

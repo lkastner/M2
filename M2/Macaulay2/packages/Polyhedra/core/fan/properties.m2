@@ -1,5 +1,5 @@
 isWellDefined Fan := F -> F.cache.isWellDefined ??= (
-   cones := getProperty(F, honestMaxObjects);
+   cones := honestMaxObjects F;
    n := #cones;
    for i from 0 to n-1 do (
       ki := (keys cones)#i;
@@ -75,14 +75,6 @@ compute#Fan#computedDimension Fan := F -> (
    max MC
 )
 
-compute#Fan#honestMaxObjects = method()
-compute#Fan#honestMaxObjects Fan := F -> (
-   R := rays F;
-   MC := maxCones F;
-   L := linealitySpace F;
-   new HashTable from apply(MC, m -> m=>coneFromVData(R_m, L))
-)
-
 compute#Fan#computedComplete = method()
 compute#Fan#computedComplete Fan := F -> (
    n := dim F;
@@ -137,44 +129,6 @@ compute#Fan#computedFacesThroughRays Fan := F -> (
       );
    );
    return hashTable pairs result
-)
-
-compute#Fan#generatingObjects = method()
-compute#Fan#generatingObjects Fan := F -> (
-   if hasProperty(F, inputCones) then (
-      cones := getProperty(F, inputCones);
-      if hasProperty(F, inputRays) then (
-         inputRaysF := getProperty(F, inputRays);
-         raysF := rays F;
-         linealityF := linealitySpace F;
-         rc := rayCorrespondenceMap(inputRaysF, linealityF, raysF);
-         cones = apply(cones,
-            c -> (
-               cnew := sort apply(c, e->rc#e);
-               select(cnew, e -> e != -1)
-            )
-         );
-      );
-      cones = unique apply(cones, c -> sort c);
-      result := {};
-      for cone in cones do (
-         test := all(cones,
-            c -> (
-               n := #((set c) * (set cone));
-               if n == #cone then (
-                  cone == c
-               ) else (
-                  true
-               )
-            )
-         );
-         if test then result = append(result, cone);
-      );
-      result
-   ) else (
-      -- Given honestMaxObj, compute these?
-      error("No input cones given");
-   )
 )
 
 -- UNEXPORTED METHOD

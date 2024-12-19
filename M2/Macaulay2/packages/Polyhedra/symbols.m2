@@ -59,7 +59,6 @@ protect inputCones  -- Cones defining a fan. These cones are not necessarily max
 protect computedPolytope  -- Polytope whose normal fan is the given fan.
 protect generatingObjects 
 protect pure  -- is the fan of pure dimension?
-protect honestMaxObjects  -- maximal cones as honest cones
 protect computedComplete  -- is the fan complete?
 protect polytopal -- Is the fan the normal fan of a polytope?
 protect underlyingFan -- The underlying fan of a polyhedral complex, i.e. intersecting at ht 1 gives complex
