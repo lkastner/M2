@@ -46,6 +46,4 @@ objectsOfDim(ZZ, PolyhedralComplex) := (k,PC) -> (
 	unique flatten apply(L, C -> faces(dim(C)-k,C)))
 
 
-isWellDefined PolyhedralComplex := PC -> getProperty(PC, isWellDefined)
-
 fan (PolyhedralComplex) := PC -> getProperty(PC, underlyingFan)
