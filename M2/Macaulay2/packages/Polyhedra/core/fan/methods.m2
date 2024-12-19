@@ -21,20 +21,6 @@ isPointed Fan := F -> all(values getProperty(F, honestMaxObjects), c->isPointed 
 isSmooth Fan := {} >> o -> F -> getProperty(F, smooth)
 
 
--- PURPOSE : Computing the subfan of all smooth cones of the Fan
---   INPUT : 'F',  a Fan
---  OUTPUT : The Fan of smooth cones
-smoothSubfan = method(TypicalValue => Fan)
-smoothSubfan Fan := F -> (
-   cones := getProperty(F, smoothCones);
-   result := new HashTable from {
-      inputCones => cones,
-      rays => rays F,
-      computedLinealityBasis => linealitySpace F
-   };
-   internalFanConstructor result
-)
-
 isPolytopal = method(TypicalValue => Boolean)
 isPolytopal Fan := F -> getProperty(F, polytopal)
 
@@ -48,22 +34,6 @@ cones(ZZ,Fan) := (k,F) -> (
    faces#(d-k)
 )
 
-
--- PURPOSE : Computing the 'n'-skeleton of a fan
---   INPUT : (n,F),  where 'n' is a positive integer and
---                   'F' is a Fan
---  OUTPUT : the Fan consisting of the 'n' dimensional cones in 'F'
-skeleton = method(TypicalValue => Fan)
-skeleton(ZZ,Fan) := (n,F) -> (
-   -- Checking for input errors
-   if n < 0 or dim F < n then error("The integer must be between 0 and dim F");
-   result := new HashTable from {
-      inputRays => rays F,
-      inputCones => cones(n,F),
-      computedLinealityBasis => linealitySpace F
-   };
-   internalFanConstructor result
-)
 
 -- PURPOSE : Returning a polytope of which the fan is the normal if the fan is polytopal
 --   INPUT : 'F',  a Fan

@@ -194,8 +194,11 @@ compute#Fan#generatingObjects Fan := F -> (
    )
 )
 
-compute#Fan#smoothCones = method()
-compute#Fan#smoothCones Fan := F -> (
+-- UNEXPORTED METHOD
+-- TODO: export this
+-- Returns the smooth cones of a fan as a list of index lists
+smoothCones = method()
+smoothCones Fan := List => F -> F.cache.smoothCones ??= (
    result := {};
    raysF := rays F;
    linealityF := linealitySpace F;

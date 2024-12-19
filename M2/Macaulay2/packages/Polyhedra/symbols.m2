@@ -53,6 +53,7 @@ protect computedNormal -- Is the polyhedron normal?
 protect computedVeryAmple -- Is the polyhedron very ample?
 protect computedEhrhart -- The Ehrhart polynomial
 
+-- TODO: move these to core/fan/constructors.m2
 protect maximalCones   -- Maximal cones of a fan.
 protect inputCones  -- Cones defining a fan. These cones are not necessarily maximal.
 protect computedPolytope  -- Polytope whose normal fan is the given fan.
@@ -60,7 +61,6 @@ protect generatingObjects
 protect pure  -- is the fan of pure dimension?
 protect honestMaxObjects  -- maximal cones as honest cones
 protect computedComplete  -- is the fan complete?
-protect smoothCones  -- smooth cones of fan as list of index lists
 protect polytopal -- Is the fan the normal fan of a polytope?
 protect underlyingFan -- The underlying fan of a polyhedral complex, i.e. intersecting at ht 1 gives complex
 protect computedFacesThroughVertices

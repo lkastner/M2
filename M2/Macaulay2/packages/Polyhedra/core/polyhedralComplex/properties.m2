@@ -31,10 +31,8 @@ compute#PolyhedralComplex#pure PolyhedralComplex := PC -> (
 )
 
 
-isWellDefined PolyhedralComplex := Boolean => (cacheValue symbol isWellDefined) (PC -> (
-   F := getProperty(PC, underlyingFan);
-   return isWellDefined F
-))
+isWellDefined PolyhedralComplex := Boolean => PC -> PC.cache.isWellDefined ??= (
+   isWellDefined getProperty(PC, underlyingFan))
 
 
 compute#PolyhedralComplex#rays = method()
