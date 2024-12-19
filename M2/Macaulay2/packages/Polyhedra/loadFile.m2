@@ -96,8 +96,6 @@ load "./tests/extended/stanleyReisner.m2"
 -- Other:
 load "./tests/legacy_tests_working.m2"
 load "./tests/shouldFail.m2"
-load "./tests/isWellDefined.m2"
-
 
 -------------------------------------------------------------------------------
 -- Interfaces to other software

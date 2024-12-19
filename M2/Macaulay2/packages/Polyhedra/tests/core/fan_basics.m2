@@ -63,3 +63,11 @@ assert(not isWellDefined fan(M, {{0,1,2}}))
 M = transpose matrix {{1,0},{1,1},{1,-1},{0,1}}
 assert(not isWellDefined fan(M, {{1,2},{0,3}}))
 ///
+
+-- Fan constructor
+TEST ///
+R = transpose matrix {{1,0},{1,1},{0,1}};
+L = {{0,2},{1,2}};
+F = fan(R,L);
+assert(not isWellDefined F)
+///

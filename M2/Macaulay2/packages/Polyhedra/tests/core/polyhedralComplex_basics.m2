@@ -15,3 +15,10 @@ assert(ambDim PC == 2)
 assert(isFullDimensional PC)
 ///
 
+-- Polyhedral complex constructor
+TEST ///
+P1 = convexHull transpose matrix {{0,0},{2,2}};
+P2 = convexHull transpose matrix {{-1,-1},{1,1}};
+PC = polyhedralComplex {P1, P2};
+assert(not isWellDefined PC)
+///
