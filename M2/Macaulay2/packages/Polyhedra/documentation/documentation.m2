@@ -95,16 +95,6 @@ doc ///
 
 doc ///
    Key
-      linSpace
-      (linSpace,Cone)
-      (linSpace,Polyhedron)
-      (linSpace,Fan)
-   Headline
-      Deprecated version of @TO "linealitySpace"@
-///
-
-doc ///
-   Key
       latticeVolume
       (latticeVolume,Polyhedron)
    Headline

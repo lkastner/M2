@@ -961,7 +961,7 @@ document {
      PARA{}, TT "linealitySpace", " returns a basis of the lineality space of the 
      input as the columns of the matrix ", TT "LS", ". The lineality space of a 
      Fan is the lineality space of any Cone of the Fan, since they all have the 
-     same lineality space.",
+     same lineality space. ", TT "linSpace", " is a synonym for ", TT "linealitySpace", ".",
      
      PARA{},"Please see ",TO "V- and H-representation"," on the conventions we
      use for cones and polyhedra.",

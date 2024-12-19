@@ -20,6 +20,8 @@ isFullDimensional PolyhedralObject := X -> ambDim X == dim X
 --  OUTPUT : a Matrix, containing the rays of PO as column vectors
 rays PolyhedralObject := {} >> o -> PO -> getProperty(PO, rays)
 
+
+-- PURPOSE : Giving a basis of the lineality space
 linealitySpace = method(TypicalValue => Matrix)
 linealitySpace PolyhedralObject := PO -> getProperty(PO, computedLinealityBasis)
 
@@ -106,9 +108,6 @@ areCompatible = method()
 halfspaces = method()
 
 facets = method()
-
--- PURPOSE : Giving a basis of the lineality space
-linSpace = method(TypicalValue => Matrix)
 
 -- PURPOSE : Giving the defining affine hyperplanes
 --   INPUT : 'P'  a Polyhedron or Cone 

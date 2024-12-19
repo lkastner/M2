@@ -74,7 +74,6 @@ facesAsPolyhedra(ZZ, Polyhedron) := (d, P) -> (
 
 
 hyperplanes Polyhedron := P -> getProperty(P, computedHyperplanes)
-linSpace Polyhedron := P -> linealitySpace P
 halfspaces Polyhedron := P -> facets P
 facets Polyhedron := P -> getProperty(P, facets)
 

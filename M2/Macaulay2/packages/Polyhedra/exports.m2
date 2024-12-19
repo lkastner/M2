@@ -29,7 +29,7 @@ export {
    "maxPolyhedra", 
    "halfspaces", 
    "hyperplanes", 
-   "linSpace", 
+   "linSpace" => "linealitySpace",
    "linealitySpace",
    "linearTransform",
    "polyhedra", 

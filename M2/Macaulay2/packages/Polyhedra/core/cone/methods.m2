@@ -143,7 +143,6 @@ getSufficientRayData Cone := C -> (
 
 
 hyperplanes Cone := C -> getProperty(C, computedHyperplanes)
-linSpace Cone := P -> linealitySpace P
 halfspaces Cone := P -> facets P
 facets Cone := C -> getProperty(C, facets)
 
