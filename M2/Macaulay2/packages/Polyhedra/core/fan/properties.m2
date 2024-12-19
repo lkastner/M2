@@ -13,34 +13,6 @@ compute#Fan#computedDimension Fan := F -> (
    max MC
 )
 
-compute#Fan#computedComplete = method()
-compute#Fan#computedComplete Fan := F -> (
-   n := dim F;
-   if n != ambDim F then return false;
-   symmDiff := (X,Y) -> (
-      summand1 := select(X, x -> position(Y, y->y==x) === null); 
-      summand2 := select(Y, y -> position(X, x->y==x) === null); 
-      flatten {summand1, summand2}
-   );
-   MC := computedMaxCones F;
-   Lfaces := {};
-   CFsave := {};
-   scan(MC, 
-      C -> (
-         if dim C == n then (
-            R := rays C;
-            L := linealitySpace C;
-            CFacets := toList getProperty(C, facetsThroughRayData);
-            CFacets = apply(CFacets, facet -> coneFromVData(R_facet, L));
-            CFsave = flatten {CFsave, {CFacets}};
-            Lfaces = symmDiff(Lfaces, CFacets);
-         )
-         else return false
-      )
-   );
-   Lfaces == {}
-)
-
 
 compute#Fan#computedFacesThroughRays = method()
 compute#Fan#computedFacesThroughRays Fan := F -> (

@@ -137,6 +137,35 @@ isPure Fan := F -> F.cache.isPure ??= (
 )
 
 
+-- whether or not F is complete, i.e. its support is the entire space
+isComplete Fan := F -> F.cache.isComplete ??= (
+    n := dim F;
+    if n != ambDim F then return false;
+    -- TODO: simplify this
+    symmDiff := (X,Y) -> (
+	summand1 := select(X, x -> position(Y, y->y==x) === null);
+	summand2 := select(Y, y -> position(X, x->y==x) === null);
+	flatten {summand1, summand2}
+    );
+    Lfaces := {};
+    CFsave := {};
+    scan(computedMaxCones F,
+	C -> (
+	    if dim C == n then (
+		R := rays C;
+		L := linealitySpace C;
+		CFacets := toList getProperty(C, facetsThroughRayData);
+		CFacets = apply(CFacets, facet -> coneFromVData(R_facet, L));
+		CFsave = flatten {CFsave, {CFacets}};
+		Lfaces = symmDiff(Lfaces, CFacets);
+	    )
+	    else return false
+	)
+    );
+    Lfaces == {}
+)
+
+
 -- PURPOSE : Giving the k dimensional Cones of the Fan
 --   INPUT : (k,F)  where 'k' is a positive integer and F is a Fan 
 --  OUTPUT : a List of Cones
@@ -154,9 +183,6 @@ cones(ZZ,Fan) := (k,F) -> (
 polytope = method(TypicalValue => Polyhedron)
 polytope Fan := F -> getProperty(F, computedPolytope)
 
-
-
-isComplete Fan := F -> getProperty(F, computedComplete)
 
 objectsOfDim(ZZ, Fan) := (k,F) -> (
 	-- Checking for input errors
