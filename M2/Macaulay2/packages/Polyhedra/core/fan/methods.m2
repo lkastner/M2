@@ -130,12 +130,6 @@ isSimplicial Fan := F -> F.cache.isSimplicial ??= (
 isPointed Fan := F -> F.cache.isPointed ??= all(computedMaxCones F, isPointed)
 
 
--- whether or not F is polytopal
--- TODO: move isPolytopal from extended/not_refactored.m2
-isPolytopal = method(TypicalValue => Boolean)
-isPolytopal Fan := F -> getProperty(F, polytopal)
-
-
 -- whether or not F is pure, i.e. all maximal cones have the same dimension
 isPure Fan := F -> F.cache.isPure ??= (
     d := dim F;
@@ -176,6 +170,21 @@ isComplete Fan := F -> F.cache.isComplete ??= (
 )
 
 
+-- whether or not F is polytopal
+-- TODO: move isPolytopal from extended/not_refactored.m2
+isPolytopal = method(TypicalValue => Boolean)
+isPolytopal Fan := F -> getProperty(F, polytopal)
+
+
+-- if the fan is polytopal, returns a polytope P such that F is the normal fan of P
+polytope = method(TypicalValue => Polyhedron)
+polytope Fan := F -> (
+    -- isPolytopal computes and caches the polytope
+    if isPolytopal F then F.cache.computedPolytope
+    else error "expected a polytopal fan"
+)
+
+
 -----------------------------------------------------------------------------
 -- PURPOSE : Giving the k dimensional Cones of the Fan
 --   INPUT : (k,F)  where 'k' is a positive integer and F is a Fan 
@@ -186,13 +195,6 @@ cones(ZZ,Fan) := (k,F) -> (
    faces := getProperty(F, computedFacesThroughRays);
    faces#(d-k)
 )
-
-
--- PURPOSE : Returning a polytope of which the fan is the normal if the fan is polytopal
---   INPUT : 'F',  a Fan
---  OUTPUT : A Polytope of which 'F' is the normal fan
-polytope = method(TypicalValue => Polyhedron)
-polytope Fan := F -> getProperty(F, computedPolytope)
 
 
 objectsOfDim(ZZ, Fan) := (k,F) -> (

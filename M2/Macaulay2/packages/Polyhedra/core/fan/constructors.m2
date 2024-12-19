@@ -11,7 +11,7 @@ rayProperties = set { rays, inputRays, inputLinealityGenerators, computedLineali
 
 -- TODO: complete this list from symbols.m2
 -- fanProperties = set { inputCones, ambientDimension,
---     computedComplete, computedPolytope, computedFVector,
+--     computedComplete, computedFVector,
 --     computedLinealityBasis, computedLinealityGenerators, computedFacesThroughRays,
 --     polytopal, smooth, simplicial, pure, facetsThroughRayData, isWellDefined }
 

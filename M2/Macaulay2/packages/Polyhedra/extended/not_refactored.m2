@@ -357,18 +357,11 @@ compute#Fan#polytopal Fan := F -> (
          M = unique ((edgerecursion(i,p,vlist,M))#1);
          M = matrix transpose apply(M, m -> flatten entries m);
          -- Computing the convex hull
-         setProperty(F, computedPolytope, convexHull M);
+         F.cache.computedPolytope = convexHull M;
          return true
       )
    );
    return false
-)
-
-
-compute#Fan#computedPolytope = method()
-compute#Fan#computedPolytope Fan := F -> (
-   if not isPolytopal F then error("Fan is not polytopal")
-   else polytope F
 )
 
 
