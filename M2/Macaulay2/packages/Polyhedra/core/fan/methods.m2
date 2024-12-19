@@ -61,6 +61,31 @@ honestMaxObjects Fan := HashTable => F -> F.cache.honestMaxObjects ??=
     new HashTable from apply(maxCones F, computedMaxCones F, identity)
 
 
+-- whether or not F is well-defined
+isWellDefined Fan := F -> F.cache.isWellDefined ??= (
+    cones := honestMaxObjects F;
+    n := #cones;
+    for i from 0 to n-1 do (
+	ki := (keys cones)#i;
+	Ci := cones#ki;
+	if(#ki != numColumns rays Ci) then(
+	    if debugLevel > 0 then << "The cone " << ki << " has redundant rays." << endl;
+	    return false;
+	);
+	for j from i to n-1 do (
+	    kj := (keys cones)#j;
+	    Cj := cones#kj;
+	    -- defined in Polyhedra/extended/commonFace.m2
+	    if not commonFace(Ci, Cj) then (
+		if debugLevel > 0 then << "The cones " << ki << " and " << kj << " do not intersect in a common face." << endl;
+		return false
+	    )
+	)
+    );
+    return true
+)
+
+
 --   INPUT : 'F',  a Fan
 --  OUTPUT : 'true' or 'false'
 isPointed Fan := F -> all(computedMaxCones F, isPointed)
@@ -103,9 +128,6 @@ objectsOfDim(ZZ, Fan) := (k,F) -> (
 	L := select(computedMaxCones F, C -> dim C >= k);
 	-- Collecting the 'k'-dim faces of all generating cones of dimension greater than 'k'
 	unique flatten apply(L, C -> faces(dim(C)-k,C)))
-
-
-isWellDefined Fan := F -> getProperty(F, isWellDefined)
 
 
 facesAsCones(ZZ, Fan) := (d, F) -> (
