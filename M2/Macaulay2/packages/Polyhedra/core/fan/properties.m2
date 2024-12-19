@@ -116,19 +116,6 @@ compute#Fan#computedComplete Fan := F -> (
 )
 
 
-compute#Fan#rays = method()
-compute#Fan#rays Fan := F -> (
-   if hasProperty(F, inputRays) then (
-      given := getProperty(F, inputRays);
-      LS := getProperty(F, computedLinealityBasis);
-      makeRaysUniqueAndPrimitive(given, LS)
-   ) else (
-      -- Could also compute this from the honestMaxObjects?
-      error("No input rays given.")
-   )
-)
-
-
 compute#Fan#computedFacesThroughRays = method()
 compute#Fan#computedFacesThroughRays Fan := F -> (
    MC := values getProperty(F, honestMaxObjects);

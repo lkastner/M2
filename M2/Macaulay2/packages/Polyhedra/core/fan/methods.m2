@@ -3,6 +3,15 @@
 linealitySpace Fan := F -> F.cache.computedLinealityBasis
 
 
+-- returns the matrix whose columns are primitive generators of the 1-dim cones of the fan
+rays Fan := Matrix => {} >> o -> F -> F.cache.rays ??= (
+    -- TODO: could this be computed if honestMaxObjects is set?
+    inputrays := try F.cache.inputRays else error "no input rays given for the fan";
+    -- defined in Polyhedra/helpers.m2
+    makeRaysUniqueAndPrimitive(inputrays, linealitySpace F)
+)
+
+
 -- PURPOSE : Giving the generating Cones of the Fan
 --   INPUT : 'F'  a Fan
 --  OUTPUT : a List of Cones

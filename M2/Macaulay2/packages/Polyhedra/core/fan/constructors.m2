@@ -112,9 +112,7 @@ linearTransform(Fan, Matrix) := Fan => (F, A) -> (
     newLineality = mingens image(A * newLineality);
     goodNewRays := makeRaysUniqueAndPrimitive(newRays, newLineality);
     new Fan from hashTable {
-	-- TODO: why is this taking rays rather than inputRays as in skeleton?
-	-- FIXME: should we be using goodNewRays?
-	rays                   => newRays,
+	inputRays              => goodNewRays,
 	generatingObjects      => maxCones F,
 	computedLinealityBasis => newLineality
     }
@@ -126,8 +124,7 @@ linearTransform(Fan, Matrix) := Fan => (F, A) -> (
 smoothSubfan = method()
 smoothSubfan Fan := Fan => F -> (
     new Fan from hashTable {
-	-- TODO: why is this taking rays rather than inputRays as in skeleton?
-	rays                   => rays F,
+	inputRays              => rays F,
 	inputCones             => smoothCones F,
 	computedLinealityBasis => linealitySpace F
     }
@@ -198,10 +195,10 @@ addCone(Fan, Cone) := Fan => (F, C) -> (
    newCone := toList apply(numColumns rays C, i -> map#i);
    mc = append(mc, newCone);
    new Fan from hashTable {
-      ambientDimension => ambDim F,
-      rays => joinedRays,
+      inputRays              => joinedRays,
+      inputCones             => mc,
+      ambientDimension       => ambDim F,
       computedLinealityBasis => linF,
-      inputCones => mc
    }
 )
 
