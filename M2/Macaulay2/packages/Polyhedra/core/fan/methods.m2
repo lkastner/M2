@@ -116,13 +116,26 @@ isSimplicial Fan := F -> F.cache.isSimplicial ??= (
 )
 
 
---   INPUT : 'F',  a Fan
---  OUTPUT : 'true' or 'false'
-isPointed Fan := F -> all(computedMaxCones F, isPointed)
+-- whether or not F is pointed
+isPointed Fan := F -> F.cache.isPointed ??= all(computedMaxCones F, isPointed)
 
 
+-- whether or not F is polytopal
+-- TODO: move isPolytopal from extended/not_refactored.m2
 isPolytopal = method(TypicalValue => Boolean)
 isPolytopal Fan := F -> getProperty(F, polytopal)
+
+
+-- whether or not F is pure, i.e. all maximal cones have the same dimension
+isPure Fan := F -> F.cache.isPure ??= (
+    d := dim F;
+    if F.cache.?computedMaxCones then
+	return all(computedMaxCones F, C -> dim C == d);
+    R := rays F;
+    L := linealitySpace F;
+    all(maxCones F, m -> rank(R_m | L) == d)
+)
+
 
 -- PURPOSE : Giving the k dimensional Cones of the Fan
 --   INPUT : (k,F)  where 'k' is a positive integer and F is a Fan 
@@ -143,7 +156,6 @@ polytope Fan := F -> getProperty(F, computedPolytope)
 
 
 
-isPure Fan := F -> getProperty(F, pure)
 isComplete Fan := F -> getProperty(F, computedComplete)
 
 objectsOfDim(ZZ, Fan) := (k,F) -> (

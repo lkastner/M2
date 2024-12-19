@@ -3,18 +3,6 @@ compute#Fan#computedFVector Fan := F -> (
    toList apply(0..(dim F), d -> #faces(dim F - d,F))
 )
 
-compute#Fan#pure = method()
-compute#Fan#pure Fan := F -> (
-   d := dim F;
-   if hasProperty(F, honestMaxObjects) then
-      return all(computedMaxCones F, C -> dim C == d);
-   R := rays F;
-   L := linealitySpace F;
-   MC := maxCones F;
-   MC = apply(MC, m -> R_m);
-   all(MC, r -> d == (rank (r | L)))
-)
-
 compute#Fan#computedDimension = method()
 compute#Fan#computedDimension Fan := F -> (
    R := rays F;
@@ -108,8 +96,4 @@ compute#Fan#ambientDimension Fan := F -> (
    else if hasProperty(F, inputLinealityGenerators) then return numRows getProperty(F, inputLinealityGenerators)
    else error("No property available to compute ambient dimension.")
 )
-
-
-compute#Fan#pointed = method()
-compute#Fan#pointed Fan := F -> all(computedMaxCones F, isPointed)
 
