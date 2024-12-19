@@ -190,7 +190,6 @@ doc ///
       (isWellDefined,Fan)
       (isWellDefined,Polyhedron)
       (isWellDefined,PolyhedralComplex)
-      (isWellDefined,PolyhedralObject)
    Headline
       Checks whether a polyhedral object is well-defined.
    Usage
