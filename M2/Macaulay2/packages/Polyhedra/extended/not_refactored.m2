@@ -243,7 +243,8 @@ compute#Fan#polytopal Fan := F -> (
       -- Extracting the generating cones, the ambient dimension, the codim 1 
       -- cones (corresponding to the edges of the polytope if it exists)
       i := 0;
-      L := hashTable apply(values getProperty(F, honestMaxObjects), l -> (i=i+1; i=>l));
+      -- TODO: make 0-indexed and simplify using 'pairs'
+      L := hashTable apply(computedMaxCones F, l -> (i = i+1; i => l));
       n := ambDim(F);
       edges := cones(n-1,F);
       raysF := rays F;

@@ -19,9 +19,18 @@ maxCones = method(TypicalValue => List)
 maxCones Fan := F -> maxObjects F
 
 
+-- UNEXPORTED METHOD
+-- returns a list of maximal cones as honest cones
+computedMaxCones = method()
+computedMaxCones Fan := List => F -> F.cache.computedMaxCones ??= (
+    R := rays F;
+    L := linealitySpace F;
+    apply(maxCones F, m -> coneFromVData(R_m, L)))
+
+
 --   INPUT : 'F',  a Fan
 --  OUTPUT : 'true' or 'false'
-isPointed Fan := F -> all(values getProperty(F, honestMaxObjects), c->isPointed c)
+isPointed Fan := F -> all(computedMaxCones F, isPointed)
 
 
 -- PURPOSE : Checks if the input is smooth
@@ -59,7 +68,7 @@ maxObjects Fan := F -> getProperty(F, generatingObjects)
 objectsOfDim(ZZ, Fan) := (k,F) -> (
 	-- Checking for input errors
 	if k < 0 or dim F < k then error("k must be between 0 and the dimension of the polyhedral object family.");
-	L := select(values getProperty(F, honestMaxObjects), C -> dim C >= k);
+	L := select(computedMaxCones F, C -> dim C >= k);
 	-- Collecting the 'k'-dim faces of all generating cones of dimension greater than 'k'
 	unique flatten apply(L, C -> faces(dim(C)-k,C)))
 

@@ -23,25 +23,14 @@ commonFace(Cone,Cone) := (C1,C2) -> (
 --   INPUT : '(C,F)'  a Cone and a Fan
 --  OUTPUT : 'true' or 'false'
 -- COMMENT : For this it checks if the cone has a common face with every generating cone of the fan
-commonFace(Cone,Fan) := (C,F) -> (
-   if ambDim(C) == ambDim(F) then 
-      all(values getProperty(F, honestMaxObjects), C1 -> commonFace(C,C1)) 
-   else false
-)
-
-
---   INPUT : '(F,C)'  a Fan and a Cone
---  OUTPUT : 'true' or 'false'
--- COMMENT : For this it checks if the cone has a common face with every generating cone of the fan
-commonFace(Fan,Cone) := (F,C) -> commonFace(C,F)
+commonFace(Cone, Fan) := (C, F) -> ambDim C == ambDim F and all(computedMaxCones F, C' -> commonFace(C, C'))
+commonFace(Fan, Cone) := (F, C) -> commonFace(C, F)
 
 
 --   INPUT : '(F1,F2)'  two Fans
 --  OUTPUT : 'true' or 'false'
 -- COMMENT : For this it checks if all generating cones of 'F1' have a common face with every generating cone of 'F2'
-commonFace(Fan,Fan) := (F1,F2) -> all(values getProperty(F1, honestMaxObjects), 
-   C -> commonFace(C,F2)
-)
+commonFace(Fan, Fan) := (F1, F2) -> all(computedMaxCones F1, C -> commonFace(C, F2))
 
 
 --   INPUT : 'L'  a List

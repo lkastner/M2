@@ -39,10 +39,8 @@ compute#Fan#computedFVector Fan := F -> (
 
 compute#Fan#simplicial = method()
 compute#Fan#simplicial Fan := F -> (
-   if hasProperty(F, honestMaxObjects) then (
-      mc := values getProperty(F, honestMaxObjects);
-      return all(mc, cone -> isSimplicial cone)
-   );
+   if hasProperty(F, honestMaxObjects) then
+      return all(computedMaxCones F, isSimplicial);
    R := rays F;
    L := linealitySpace F;
    MC := maxCones F;
@@ -58,10 +56,8 @@ compute#Fan#simplicial Fan := F -> (
 compute#Fan#pure = method()
 compute#Fan#pure Fan := F -> (
    d := dim F;
-   if hasProperty(F, honestMaxObjects) then (
-      mc := values getProperty(F, honestMaxObjects);
-      return all(mc, cone -> (dim cone) == d)
-   );
+   if hasProperty(F, honestMaxObjects) then
+      return all(computedMaxCones F, C -> dim C == d);
    R := rays F;
    L := linealitySpace F;
    MC := maxCones F;
@@ -96,7 +92,7 @@ compute#Fan#computedComplete Fan := F -> (
       summand2 := select(Y, y -> position(X, x->y==x) === null); 
       flatten {summand1, summand2}
    );
-   MC := values getProperty(F, honestMaxObjects);
+   MC := computedMaxCones F;
    Lfaces := {};
    CFsave := {};
    scan(MC, 
@@ -118,7 +114,7 @@ compute#Fan#computedComplete Fan := F -> (
 
 compute#Fan#computedFacesThroughRays = method()
 compute#Fan#computedFacesThroughRays Fan := F -> (
-   MC := values getProperty(F, honestMaxObjects);
+   MC := computedMaxCones F;
    raysF := rays F;
    dimF := dim F;
    linealityF := linealitySpace F;
@@ -211,7 +207,5 @@ compute#Fan#ambientDimension Fan := F -> (
 
 
 compute#Fan#pointed = method()
-compute#Fan#pointed Fan := F -> (
-   all(values getProperty(F, honestMaxObjects), C -> isPointed C)
-)
+compute#Fan#pointed Fan := F -> all(computedMaxCones F, isPointed)
 

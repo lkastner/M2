@@ -16,8 +16,8 @@ stellarSubdivision (Fan,Matrix) := Fan => (F,r) -> (
       )
       else {C}
    );
-   L := flatten apply(values getProperty(F, honestMaxObjects), C -> if contains(C,r) then divider(C,r) else {C});
-   fan L
+   fan flatten apply(computedMaxCones F,
+       C -> if contains(C, r) then divider(C, r) else {C})
 )
 
 
