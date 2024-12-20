@@ -521,6 +521,9 @@ gfanParsePolyhedralFan String := o -> s -> (
 	    else  (S)
 )
 
+-- this is an internal type specific for this package
+GFan = new Type of PolyhedralObject
+
 gfanParseHeader = method(TypicalValue => Type)
 gfanParseHeader List := (L) -> (
 	typePosition := position(L, l -> "_type" == first separate(" ", l));
@@ -529,7 +532,7 @@ gfanParseHeader List := (L) -> (
 	if #typeWords === 2 and typeWords#1 == "PolyhedralCone" then
 		Cone
 	else if #typeWords === 2 and (typeWords#1 == "PolyhedralFan" or typeWords#1 == "SymmetricFan") then
-		Fan
+		GFan
 	else
 		PolyhedralObject
 )
