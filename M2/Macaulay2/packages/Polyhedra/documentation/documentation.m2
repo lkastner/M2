@@ -70,9 +70,11 @@ doc ///
          SR = stanleyReisnerRing normalFan hypercube 2
 ///
 
+-- TODO: combine with documentation of 'faces'
 doc ///
    Key
       (faces, PolyhedralObject)
+      (faces, Fan)
    Headline
       Giving the faces of a polyhedral object.
    Usage

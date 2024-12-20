@@ -32,12 +32,12 @@ linealitySpace PolyhedralObject := PO -> getProperty(PO, computedLinealityBasis)
 dim PolyhedralObject := PO -> getProperty(PO, computedDimension)
 
 -- PURPOSE : Computing the faces of codimension 'k' of 'P'
-faces = method(TypicalValue => HashTable)
-faces PolyhedralObject := PO -> getProperty(PO, computedFacesThroughRays)
+faces = method()
+faces PolyhedralObject := HashTable => PO -> getProperty(PO, computedFacesThroughRays)
 --   INPUT : 'k'  an integer between 0 and the dimension of
 --     	     'PO'  a polyhedralObject
 --  OUTPUT : a List, containing the indices of rays used for the faces
-faces(ZZ, PolyhedralObject) := (k,PO) -> (
+faces(ZZ, PolyhedralObject) := List => (k, PO) -> (
    result := faces PO;
    if result#?k then result#k
    else {}

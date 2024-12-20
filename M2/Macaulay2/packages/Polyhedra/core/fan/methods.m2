@@ -185,15 +185,57 @@ polytope Fan := F -> (
 )
 
 
------------------------------------------------------------------------------
--- PURPOSE : Giving the k dimensional Cones of the Fan
---   INPUT : (k,F)  where 'k' is a positive integer and F is a Fan 
---  OUTPUT : a List of Cones
-cones = method(TypicalValue => List)
-cones(ZZ,Fan) := (k,F) -> (
-   d := dim F;
-   faces := getProperty(F, computedFacesThroughRays);
-   faces#(d-k)
+-- returns a hash table with entries d => { C | codim C == d }
+-- TODO: rename the cache key
+faces Fan := HashTable => F -> F.cache.computedFacesThroughRays ??= (
+    dimF := dim F;
+    raysF := rays F;
+    L := linealitySpace F;
+    MC := computedMaxCones F;
+    -- a hash table with entries C => codim C
+    allcones := new MutableHashTable;
+    for C in MC do (
+	dimC := dim C;
+	raysC := rays C;
+	facesC := faces C;
+	-- defined in Polyhedra/helpers.m2
+	rc := rayCorrespondenceMap(raysC, L, raysF);
+	for i in keys facesC do (
+	    codimInF := i + dimF - dimC;
+	    for C' in facesC#i do (
+		raysC' := sort apply(C', e -> rc#e);
+		allcones#raysC' = codimInF);
+	);
+    );
+    partition(C -> allcones#C, sort keys allcones)
+)
+
+-- returns a list of codim k cones of F
+-- compare with computedMaxCones
+-- TODO: should these be cached?
+facesAsCones(ZZ, Fan) := List => (k, F) -> (
+    R := rays F;
+    L := linealitySpace F;
+    apply(faces(k, F), m -> coneFromVData(R_m, L))
+)
+
+fVector Fan := F -> F.cache.fVector ??= apply(dim F + 1, d -> #faces(dim F - d, F))
+
+-- returns a list of d-dimensional cones of a fan
+cones = method()
+cones(ZZ, Fan) := List => (d, F) -> faces(dim F - d, F)
+
+-- UNEXPORTED METHOD
+-- TODO: export this, currently only used by smoothSubfan
+-- returns the smooth cones of a fan as a list of index lists
+smoothCones = method()
+smoothCones Fan := List => F -> F.cache.smoothCones ??= (
+    allcones := faces F;
+    R' := transpose rays F;
+    L' := transpose linealitySpace F;
+    flatten for i in keys allcones list select(allcones#i,
+	-- defined in Polyhedra/helpers.m2
+	m -> spanSmoothCone(R'^m, L'))
 )
 
 
@@ -203,11 +245,3 @@ objectsOfDim(ZZ, Fan) := (k,F) -> (
 	L := select(computedMaxCones F, C -> dim C >= k);
 	-- Collecting the 'k'-dim faces of all generating cones of dimension greater than 'k'
 	unique flatten apply(L, C -> faces(dim(C)-k,C)))
-
-
-facesAsCones(ZZ, Fan) := (d, F) -> (
-   raysF := rays F;
-   linF := linealitySpace F;
-   result := faces(d, F);
-   apply(result, f -> coneFromVData(raysF_f, linF))
-)

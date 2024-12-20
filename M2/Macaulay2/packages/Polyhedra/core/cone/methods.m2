@@ -2,8 +2,8 @@ dualFaceRepresentationMap Cone := C -> (
    getProperty(C, facetRayDataConverter)
 )
 
-facesAsCones = method();
-facesAsCones(ZZ, Cone) := (d, C) -> (
+facesAsCones = method()
+facesAsCones(ZZ, Cone) := List => (d, C) -> (
    raysC := rays C;
    linC := linealitySpace C;
    result := faces(d, C);
