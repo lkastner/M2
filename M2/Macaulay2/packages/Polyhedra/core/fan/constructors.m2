@@ -81,6 +81,9 @@ fan List := inputCones -> (
 -----------------------------------------------------------------------------
 -- Other methods returning a fan
 -- Also see stellarSubdivision and ccRefinement in extended/fan/methods.m2
+-- faceFan in extended/polyhedron/methods.m2
+-- normalFan in core/polyhedron/methods.m2
+-- imageFan in extended/legacy.m2
 
 linearTransform = method()
 linearTransform(Fan, Matrix) := Fan => (F, A) -> (

@@ -93,10 +93,10 @@ compute#PolyhedralComplex#computedFacesThroughRays PolyhedralComplex := PC -> (
    F := getProperty(PC, underlyingFan);
    vertPC := vertices PC;
    raysPC := rays PC;
+   conesF := faces F;
    raysF := rays F;
    vertPCMap := rayCorrespondenceMap(raysF, prependOnes vertPC);
    raysPCMap := rayCorrespondenceMap(raysF, prependZeros raysPC);
-   conesF := getProperty(F, computedFacesThroughRays);
    result := new MutableHashTable;
    for i from 0 to dim PC do result#i = {};
    for k in keys conesF do (
