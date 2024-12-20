@@ -24,28 +24,6 @@ new Fan from HashTable := (Fan, data) -> constructTypeFromHash(Fan,
 )
 
 -----------------------------------------------------------------------------
--- Equality testing
-
-Fan == Fan := (F1, F2) -> (
-   r1 := rays F1;
-   l1 := linealitySpace F1;
-   r2 := rays F2;
-   if numRows r1 != numRows r2 then return false;
-   if numColumns r1 != numColumns r2 then return false;
-   m1 := maxCones F1;
-   m2 := maxCones F2;
-   if #m1 != #m2 then return false;
-   rayMap := rayCorrespondenceMap(r1, l1, r2);
-   m1Mapped := apply(m1,
-      maxCone -> (
-         sort apply(maxCone, l -> rayMap#l)
-      )
-   );
-   m2Mapped := apply(m2, maxCone -> sort maxCone);
-   (sort m1Mapped) == (sort m2Mapped)
-)
-
------------------------------------------------------------------------------
 -- Main constructors of a fan
 
 -- PURPOSE : Building the Fan 'F'

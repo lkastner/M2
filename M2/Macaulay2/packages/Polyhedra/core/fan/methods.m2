@@ -63,6 +63,24 @@ honestMaxObjects Fan := HashTable => F -> F.cache.honestMaxObjects ??=
 
 
 -----------------------------------------------------------------------------
+-- testing equality
+Fan == Fan := (F1, F2) -> (
+    R1 := rays F1;
+    R2 := rays F2;
+    if numrows R1 != numrows R2
+    or numcols R1 != numcols R2 then return false;
+    M1 := maxCones F1;
+    M2 := maxCones F2;
+    if #M1 != #M2 then return false;
+    L1 := linealitySpace F1;
+    rayMap := rayCorrespondenceMap(R1, L1, R2);
+    M1Mapped := apply(M1, C -> sort apply(C, l -> rayMap#l));
+    M2Mapped := apply(M2, C -> sort C);
+    sort M1Mapped == sort M2Mapped
+)
+
+
+-----------------------------------------------------------------------------
 -- returns the dimension of F, i.e. maximum of the dimension of its cones
 dim Fan := F -> F.cache.dim ??= (
     R := rays F;
