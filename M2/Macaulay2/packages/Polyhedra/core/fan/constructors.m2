@@ -7,13 +7,9 @@ compute#Fan = new MutableHashTable;
 
 -- properties which encode rays of a cone or fan
 -- TODO: combine with the one in core/cone/constructors.m2
+-- TODO: need to change 'rays' into a symbol for consistency
+-- TODO: is inputLinealityGenerators used anywhere?
 rayProperties = set { rays, inputRays, inputLinealityGenerators, computedLinealityBasis }
-
--- TODO: complete this list from symbols.m2
--- fanProperties = set { inputCones, ambientDimension,
---     computedComplete, computedFVector,
---     computedLinealityBasis, computedLinealityGenerators, computedFacesThroughRays,
---     polytopal, smooth, simplicial, pure, facetsThroughRayData, isWellDefined }
 
 -----------------------------------------------------------------------------
 -- Low level constructor of a fan
@@ -63,8 +59,8 @@ fan(Matrix, Matrix, Sequence) := (inputrays, linealityGens, inputcones) -> (
     if numcols inputrays < max flatten inputcones then error "the number of indices exceeds the number of rays";
     if numrows inputrays != numrows linealityGens then error "rays and lineality must have same ambient dimension";
     new Fan from hashTable {
-	inputRays              => inputrays,
-	inputCones             => inputcones,
+	symbol inputRays       => inputrays,
+	symbol inputCones      => inputcones,
 	computedLinealityBasis => lineality,
     }
 )
@@ -79,9 +75,14 @@ fan(Matrix, Sequence) := (inputrays, inputcones) -> (
 fan Cone := C -> (
     inputrays := rays C;
     inputcone := for i from 0 to numcols inputrays - 1 list i;
-    F := fan(inputrays, linealitySpace C, { inputcone });
-    F.cache.honestMaxObjects = new HashTable from { inputcone => C };
-    F
+    new Fan from hashTable {
+	rays                    => inputrays,
+	symbol inputRays        => inputrays,
+	symbol inputCones       => { inputcone },
+	symbol maxCones         => { inputcone },
+	computedLinealityBasis  => linealitySpace C,
+	symbol computedMaxCones => { C },
+    }
 )
 
 importFrom_Core {"concatCols"}
@@ -112,8 +113,10 @@ linearTransform(Fan, Matrix) := Fan => (F, A) -> (
     newLineality = mingens image(A * newLineality);
     goodNewRays := makeRaysUniqueAndPrimitive(newRays, newLineality);
     new Fan from hashTable {
-	inputRays              => goodNewRays,
-	maxCones               => maxCones F,
+	rays                   => goodNewRays,
+	symbol inputRays       => goodNewRays,
+	symbol inputCones      => maxCones F,
+	symbol maxCones        => maxCones F,
 	computedLinealityBasis => newLineality
     }
 )
@@ -124,8 +127,9 @@ linearTransform(Fan, Matrix) := Fan => (F, A) -> (
 smoothSubfan = method()
 smoothSubfan Fan := Fan => F -> (
     new Fan from hashTable {
-	inputRays              => rays F,
-	inputCones             => smoothCones F,
+	rays                   => rays F,
+	symbol inputRays       => rays F,
+	symbol inputCones      => smoothCones F,
 	computedLinealityBasis => linealitySpace F
     }
 )
@@ -140,8 +144,9 @@ skeleton(ZZ, Fan) := Fan => (n, F) -> (
     -- Checking for input errors
     if n < 0 or dim F < n then error "expected an integer be between 0 and the dimension of the fan";
     new Fan from hashTable {
-	inputRays              => rays F,
-	inputCones             => cones(n, F),
+	rays                   => rays F,
+	symbol inputRays       => rays F,
+	symbol inputCones      => cones(n, F),
 	computedLinealityBasis => linealitySpace F
     }
 )
@@ -171,14 +176,18 @@ fanFromGfan List := Fan => gfanOutput -> (
    and ((#(gfanOutput#2) != 0) or (gfanOutput#3 != 0) or (#(gfanOutput#6) != 0))
    then error("Inconsistent input into fanFromGfan");
 
+    -- TODO: fix these in gfanInterface
    if (numColumns R == 0) then R = map(ZZ^(numRows L), ZZ^0, 0);
    if (numColumns L == 0) then L = map(ZZ^(numRows R), ZZ^0, 0);
-    result := fan(R, L,              gfanOutput#2);
-    result.cache.dim               = gfanOutput#3;
-    result.cache.pure              = gfanOutput#4;
-    result.cache.simplicial        = gfanOutput#5;
-    result.cache.computedFVector   = gfanOutput#6;
-    result
+    new Fan from hashTable {
+	symbol inputRays       => R,
+	symbol inputCones      => gfanOutput#2,
+	computedLinealityBasis => L,
+	symbol dim             => gfanOutput#3,
+	symbol isPure          => gfanOutput#4,
+	symbol isSimplicial    => gfanOutput#5,
+	symbol fVector         => gfanOutput#6,
+    }
 )
 
 addCone = method()
@@ -195,10 +204,10 @@ addCone(Fan, Cone) := Fan => (F, C) -> (
    newCone := toList apply(numColumns rays C, i -> map#i);
    mc = append(mc, newCone);
    new Fan from hashTable {
-      inputRays              => joinedRays,
-      inputCones             => mc,
-      ambientDimension       => ambDim F,
-      computedLinealityBasis => linF,
+      rays                    => joinedRays,
+      symbol inputRays        => joinedRays,
+      symbol inputCones       => mc,
+      computedLinealityBasis  => linF,
    }
 )
 
