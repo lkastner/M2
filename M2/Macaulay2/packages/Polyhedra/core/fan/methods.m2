@@ -247,11 +247,3 @@ smoothCones Fan := List => F -> F.cache.smoothCones ??= (
 	-- defined in Polyhedra/helpers.m2
 	m -> spanSmoothCone(R'^m, L'))
 )
-
-
-objectsOfDim(ZZ, Fan) := (k,F) -> (
-	-- Checking for input errors
-	if k < 0 or dim F < k then error("k must be between 0 and the dimension of the polyhedral object family.");
-	L := select(computedMaxCones F, C -> dim C >= k);
-	-- Collecting the 'k'-dim faces of all generating cones of dimension greater than 'k'
-	unique flatten apply(L, C -> faces(dim(C)-k,C)))

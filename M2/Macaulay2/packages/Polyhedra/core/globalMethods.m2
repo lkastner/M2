@@ -132,11 +132,16 @@ isPure = method(TypicalValue => Boolean)
 
 
 maxObjects = method(TypicalValue => List)
+
+-- TODO: deprecate this (note exported and never used)
 objectsOfDim = method(TypicalValue => List)
-
-
-
-
+objectsOfDim(ZZ, PolyhedralObject) := (d, PO) -> (
+    -- Checking for input errors
+    if d < 0 or dim PO < d then error "expect an integer between 0 and the dimension of the given polyhedral object";
+    L := select(values honestMaxObjects PO, F -> dim F >= d);
+    -- Collecting the d-dimensional faces of all generating cones of dimension greater than d
+    unique flatten apply(L, F -> faces(dim F - d, F))
+)
 
 -------------------------------------------------------------------------------
 -- Other

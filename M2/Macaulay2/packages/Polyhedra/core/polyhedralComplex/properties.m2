@@ -122,6 +122,8 @@ compute#PolyhedralComplex#honestMaxObjects PolyhedralComplex := PC -> (
    apply(mP, m-> convexHull(vertPC_(m#0), raysPC_(m#1), linPC))
 )
 
+honestMaxObjects PolyhedralComplex := PC -> getProperty(PC, honestMaxObjects)
+
 
 compute#PolyhedralComplex#simplicial = method()
 compute#PolyhedralComplex#simplicial PolyhedralComplex := PC -> (
