@@ -21,7 +21,6 @@ protect equations
 protect inequalities
 protect inputLinealityGenerators
 protect inputRays
-protect ambientDimension
 protect computedDimension
 protect computedFacesThroughRays -- Which rays span a face?
 protect facetRayDataConverter

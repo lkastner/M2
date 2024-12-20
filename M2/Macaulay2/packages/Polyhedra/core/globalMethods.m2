@@ -3,7 +3,7 @@
 
 --   INPUT : 'P'  a Polyhedron 
 --  OUTPUT : an integer, the dimension of the ambient space
-ambDim = method(TypicalValue => ZZ)
+ambientDimension = method(TypicalValue => ZZ)
 ambDim PolyhedralObject := X -> getProperty(X, ambientDimension)
 
 isSimplicial = method(TypicalValue => Boolean)

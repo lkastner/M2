@@ -70,6 +70,16 @@ dim Fan := F -> F.cache.dim ??= (
     max apply(maxCones F, m -> rank(R_m | L))
 )
 
+
+-- returns the dimension of the ambient space of F
+ambientDimension Fan := F -> F.cache.ambientDimension ??= (
+    for key in keys rayProperties do (
+	if F.cache#?key then return numRows F.cache#key);
+    -- TODO: when can this ever happen?
+    error "no property available to compute ambient dimension"
+)
+
+
 -----------------------------------------------------------------------------
 -- whether or not F is well-defined
 isWellDefined Fan := F -> F.cache.isWellDefined ??= (
@@ -144,7 +154,7 @@ isPure Fan := F -> F.cache.isPure ??= (
 -- whether or not F is complete, i.e. its support is the entire space
 isComplete Fan := F -> F.cache.isComplete ??= (
     n := dim F;
-    if n != ambDim F then return false;
+    if n != ambientDimension F then return false;
     -- TODO: simplify this
     symmDiff := (X,Y) -> (
 	summand1 := select(X, x -> position(Y, y->y==x) === null);

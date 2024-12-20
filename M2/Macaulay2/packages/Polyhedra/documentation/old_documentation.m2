@@ -734,9 +734,9 @@ document {
      }
 
 document {
-     Key => {ambDim, (ambDim,PolyhedralObject)},
+     Key => {ambientDimension, (ambientDimension,PolyhedralObject)},
      Headline => "ambient dimension of a Polyhedron, Cone or Fan",
-     Usage => "d = ambDim P \nd = ambDim C \nd = ambDim F",
+     Usage => "d = ambientDimension P \nd = ambientDimension C \nd = ambientDimension F",
      Inputs => {
 	  "P" => Polyhedron,
 	  "C" => Cone,
@@ -746,13 +746,13 @@ document {
 	  "d" => ZZ => {", the dimension of the ambient space"}
 	  },
      
-     PARA{}, TT "ambDim", " returns the dimension of the ambient space 
+     PARA{}, TT "ambientDimension", " returns the dimension of the ambient space
      either of the ", TO Polyhedron," ",TT "P", ", of the ", TO Cone," ",TT "C", " 
-     or the ", TO Fan," ",TT "F", ".",
+     or the ", TO Fan," ",TT "F", ". ", TT "ambDim", " is a synonym for ", TT "ambientDimension", ".",
      
      EXAMPLE {
 	  " P = convexHull matrix{{1,0},{0,1}}",
-	  " ambDim P",
+	  " ambientDimension P",
 	  }
      }
 
