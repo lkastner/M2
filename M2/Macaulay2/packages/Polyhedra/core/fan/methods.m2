@@ -1,6 +1,7 @@
 -- returns the matrix whose columns are a basis of the lineality space
 -- this is always set by the constructor of F
-linealitySpace Fan := F -> F.cache.computedLinealityBasis
+linealitySpace Fan := F -> F.cache.computedLinealityBasis ??=
+    makeRaysPrimitive mingens image F.cache.inputLinealityGenerators
 
 
 -- returns the matrix whose columns are primitive generators of the 1-dim cones of the fan

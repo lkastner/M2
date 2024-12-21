@@ -49,6 +49,9 @@ fan(Matrix, Sequence) := (inputrays, inputcones) -> (
     fan(inputrays, linealityGens, inputcones)
 )
 
+fan(Matrix, Nothing, List)     :=
+fan(Matrix, Nothing, Sequence) := (inputrays, null, inputcones) -> fan(inputrays, inputcones)
+
 -- returns the fan given by C and all of its faces
 fan Cone := C -> (
     inputrays := rays C;
@@ -71,11 +74,14 @@ fan List := inputCones -> (
 	if instance(C, Cone) then cols rays C else
 	if instance(C, Matrix) then cols C else
 	error "Fan constructor expected a list of cones or matrices");
+    LS := scan(inputCones, C -> if instance(C, Cone) then break linealitySpace C);
+    if not all(inputCones, C -> if instance(C, Cone) then image linealitySpace C == image LS else true)
+    then error "expected all cones to have the same lineality space";
     B := unique flatten A;
     H := hashTable apply(toList pairs B, reverse);
     rayList := concatCols B;
     maxList := apply(A, C -> apply(C, ray -> H#ray));
-    fan(rayList, -* linealityGens, *- maxList)
+    fan(rayList, LS, maxList)
 )
 
 -----------------------------------------------------------------------------
