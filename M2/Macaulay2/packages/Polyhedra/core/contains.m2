@@ -23,11 +23,11 @@ contains(Cone,Cone) := (C1,C2) -> (
    local C1eq;
    -- Extracting inequalities of C1
    if hasProperty(C1, facets) then C1ineq = facets C1
-   else if hasProperty(C1, inequalities) then C1ineq = getProperty(C1, inequalities)
+   else if hasProperty(C1, inequalities) then C1ineq = getInequalities C1
    else C1ineq = facets C1;
    -- Extracting equations of C1
    if hasProperty(C1, computedHyperplanes) then C1eq = hyperplanes C1
-   else if hasProperty(C1, equations) then C1eq = getProperty(C1, equations)
+   else if hasProperty(C1, equations) then C1eq = getEquations C1
    else C1eq = hyperplanes C1;
    local C2rays;
    local C2lineality;

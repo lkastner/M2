@@ -7,9 +7,7 @@ normalFan Polyhedron := P -> (
 )      
 
 
-vertices Polyhedron := P -> (
-   getProperty(P, computedVertices)
-)
+-- vertices Polyhedron is installed in core/polyhedron/properties.m2
 
 --   INPUT : '(P,Q)'  two Polyhedra
 --  OUTPUT : 'true' or 'false'
@@ -70,10 +68,10 @@ facesAsPolyhedra(ZZ, Polyhedron) := (d, P) -> (
 )
 
 
-hyperplanes Polyhedron := P -> getProperty(P, computedHyperplanes)
+-- hyperplanes Polyhedron and facets Polyhedron are installed in
+-- core/polyhedron/properties.m2
 linSpace Polyhedron := P -> linealitySpace P
 halfspaces Polyhedron := P -> facets P
-facets Polyhedron := P -> getProperty(P, facets)
 
 
 -- PURPOSE : Scaling respectively the multiple Minkowski sum of a polyhedron

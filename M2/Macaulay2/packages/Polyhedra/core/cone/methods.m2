@@ -111,14 +111,14 @@ isFace(Cone,Cone) := (C1,C2) -> (
 dualCone = method(TypicalValue => Cone)
 dualCone Cone := C -> (
    result := new CacheTable;
-   if hasProperty(C, inequalities) then result#inputRays = transpose getProperty(C, inequalities);
-   if hasProperty(C, equations) then result#inputLinealityGenerators = transpose getProperty(C, equations);
+   if hasProperty(C, inequalities) then result#inputRays = transpose getInequalities C;
+   if hasProperty(C, equations) then result#inputLinealityGenerators = transpose getEquations C;
    if hasProperty(C, inputRays) then result#inequalities = transpose getInputRays C;
    if hasProperty(C, inputLinealityGenerators) then result#equations = transpose getInputLinealityGenerators C;
-   if hasProperty(C, rays) then result#facets = transpose getProperty(C, rays);
-   if hasProperty(C, computedLinealityBasis) then result#computedHyperplanes = transpose getProperty(C, computedLinealityBasis);
-   if hasProperty(C, facets) then result#rays = transpose getProperty(C, facets);
-   if hasProperty(C, computedHyperplanes) then result#computedLinealityBasis = transpose getProperty(C, computedHyperplanes);
+   if hasProperty(C, rays) then result#facets = transpose rays C;
+   if hasProperty(C, computedLinealityBasis) then result#computedHyperplanes = transpose linealitySpace C;
+   if hasProperty(C, facets) then result#rays = transpose facets C;
+   if hasProperty(C, computedHyperplanes) then result#computedLinealityBasis = transpose hyperplanes C;
    return new Cone from {ambientDimension => ambDim C, cache => result}
 )
 
@@ -141,9 +141,8 @@ getVRepresentation Cone := C -> (
 
 
 
-hyperplanes Cone := C -> getProperty(C, computedHyperplanes)
+-- hyperplanes Cone and facets Cone are installed in core/cone/properties.m2
 linSpace Cone := P -> linealitySpace P
 halfspaces Cone := P -> facets P
-facets Cone := C -> getProperty(C, facets)
 
 isWellDefined Cone := C -> getProperty(C, isWellDefined)

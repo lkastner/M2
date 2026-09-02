@@ -122,15 +122,24 @@ compute#Fan#computedComplete Fan := F -> (
 )
 
 
-compute#Fan#rays = method()
-compute#Fan#rays Fan := F -> (
-   if hasProperty(F, inputRays) then (
-      given := getInputRays F;
-      LS := getProperty(F, computedLinealityBasis);
-      makeRaysUniqueAndPrimitive(given, LS)
-   ) else (
-      -- Could also compute this from maxCones(F, Cone)?
-      error("No input rays given.")
+-- Fan's lineality space is always set directly at construction time (see
+-- fan(Matrix,Matrix,List) in core/fan/constructors.m2), so this is an
+-- error-stub cache accessor, same idea as getUnderlyingFan; it is never
+-- actually triggered in practice.
+linealitySpace Fan := (cacheValue symbol computedLinealityBasis) (
+   F -> error("No lineality space set for this Fan.")
+)
+
+rays Fan := {} >> o -> (cacheValue rays) (
+   F -> (
+      if hasProperty(F, inputRays) then (
+         given := getInputRays F;
+         LS := linealitySpace F;
+         makeRaysUniqueAndPrimitive(given, LS)
+      ) else (
+         -- Could also compute this from maxCones(F, Cone)?
+         error("No input rays given.")
+      )
    )
 )
 

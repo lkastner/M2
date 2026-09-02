@@ -17,6 +17,19 @@ getInputLinealityGenerators Cone := (cacheValue symbol inputLinealityGenerators)
    C -> error("No input lineality generators set for this Cone.")
 )
 
+-- inequalities/equations are pure construction-time H-data, same story as
+-- inputRays/inputLinealityGenerators above, just for the halfspace/hyperplane
+-- side; also used by Polyhedron (see core/polyhedron/properties.m2).
+getInequalities = method()
+getInequalities Cone := (cacheValue symbol inequalities) (
+   C -> error("No inequalities set for this Cone.")
+)
+
+getEquations = method()
+getEquations Cone := (cacheValue symbol equations) (
+   C -> error("No equations set for this Cone.")
+)
+
 
 compute#Cone#isWellDefined = method()
 compute#Cone#isWellDefined Cone := C -> (
@@ -39,7 +52,7 @@ compute#Cone#isWellDefined Cone := C -> (
    );
    if hasProperties(C, {inequalities, equations}) then (
       hasEnoughProperties = true;
-      C3 := coneFromHData(getProperty(C, inequalities), getProperty(C, equations));
+      C3 := coneFromHData(getInequalities C, getEquations C);
       if not testDim == dim C3 then return false;
       if not testAmbientDim == ambDim C3 then return false;
       if not (C3 == C) then return false
@@ -203,70 +216,83 @@ compute#Cone#computedHilbertBasis Cone := C -> (
 )
 
 
-compute#Cone#computedLinealityBasis = method()
-compute#Cone#computedLinealityBasis Cone := C -> (
-   local containingSpace;
-   if hasProperties(C, {facets, computedHyperplanes}) then (
-      containingSpace = (facets C) || (hyperplanes C);
-   ) else if hasProperties(C, {inequalities, equations}) then (
-      containingSpace = getProperty(C, inequalities) || getProperty(C, equations);
-   ) else if hasProperties(C, {inputRays, inputLinealityGenerators}) then (
-      rays C;
-      return linealitySpace C
-   ) else (
-      error "Lineality space not computable."
-   );
-   orthogonalComplement containingSpace
+-- rays, facets, hyperplanes (computedHyperplanes) and linealitySpace
+-- (computedLinealityBasis) mutually reference each other's computation (rays
+-- needs facets-or-H-data, facets needs rays-or-H-data, hyperplanes/lineality
+-- need either side), so they're migrated together here rather than one at a
+-- time, the way underlyingCone was. rays/facets/hyperplanes/linealitySpace
+-- are Macaulay2 core (or, for linealitySpace, Polyhedra-global) methods, so
+-- these install directly under those names -- no renaming needed, unlike
+-- inputRays/underlyingCone and friends, since none of these names are
+-- protected symbols.
+linealitySpace Cone := (cacheValue symbol computedLinealityBasis) (
+   C -> (
+      local containingSpace;
+      if hasProperties(C, {facets, computedHyperplanes}) then (
+         containingSpace = (facets C) || (hyperplanes C);
+      ) else if hasProperties(C, {inequalities, equations}) then (
+         containingSpace = getInequalities C || getEquations C;
+      ) else if hasProperties(C, {inputRays, inputLinealityGenerators}) then (
+         rays C;
+         return linealitySpace C
+      ) else (
+         error "Lineality space not computable."
+      );
+      orthogonalComplement containingSpace
+   )
 )
 
 
-compute#Cone#computedHyperplanes = method()
-compute#Cone#computedHyperplanes Cone := C -> (
-   local containingSpace;
-   if hasProperties(C, {rays, computedLinealityBasis}) then (
-      containingSpace = rays C | linealitySpace C;
-   ) else if hasProperties(C, {inputRays, inputLinealityGenerators}) then (
-      containingSpace = getInputRays C | getInputLinealityGenerators C;
-   ) else if hasProperties(C, {inequalities, equations}) then (
-      facets C;
-      return hyperplanes C
-   ) else (
-      error "Hyperplanes not computable"
-   );
-   result := orthogonalComplement transpose containingSpace;
-   transpose result
+hyperplanes Cone := (cacheValue symbol computedHyperplanes) (
+   C -> (
+      local containingSpace;
+      if hasProperties(C, {rays, computedLinealityBasis}) then (
+         containingSpace = rays C | linealitySpace C;
+      ) else if hasProperties(C, {inputRays, inputLinealityGenerators}) then (
+         containingSpace = getInputRays C | getInputLinealityGenerators C;
+      ) else if hasProperties(C, {inequalities, equations}) then (
+         facets C;
+         return hyperplanes C
+      ) else (
+         error "Hyperplanes not computable"
+      );
+      result := orthogonalComplement transpose containingSpace;
+      transpose result
+   )
 )
 
 
-compute#Cone#facets = method()
-compute#Cone#facets Cone := C -> (
-   -- rays/computedLinealityBasis and inequalities/equations both end up
-   -- using (rays C, linealitySpace C) here (the latter by forcing rays C to
-   -- be computed from the inequalities/equations), so this is exactly
-   -- getVRepresentation's tiering: prefer already-known rays, else raw
-   -- input rays, else force the canonical computation.
-   (rayData, linealityData) := getVRepresentation C;
-   (facetData, hyperplaneData) := computeFacetsFromRayData(rayData, linealityData);
-   if not hasProperty(C, computedHyperplanes) then setProperty(C, computedHyperplanes, hyperplaneData);
-   facetData
+facets Cone := (cacheValue facets) (
+   C -> (
+      -- rays/computedLinealityBasis and inequalities/equations both end up
+      -- using (rays C, linealitySpace C) here (the latter by forcing rays C
+      -- to be computed from the inequalities/equations), so this is exactly
+      -- getVRepresentation's tiering: prefer already-known rays, else raw
+      -- input rays, else force the canonical computation.
+      (rayData, linealityData) := getVRepresentation C;
+      (facetData, hyperplaneData) := computeFacetsFromRayData(rayData, linealityData);
+      if not hasProperty(C, computedHyperplanes) then setProperty(C, computedHyperplanes, hyperplaneData);
+      facetData
+   )
 )
 
 
-compute#Cone#rays = method()
-compute#Cone#rays Cone := C -> (
-   local rayData;
-   local linealityData;
-   if hasProperties(C, {facets, computedHyperplanes}) then (
-      (rayData, linealityData) = computeRaysFromFacetData(facets C, hyperplanes C);
-   ) else if hasProperties(C, {inequalities, equations}) then (
-      (rayData, linealityData) = computeRaysFromFacetData(getProperty(C, inequalities), getProperty(C, equations));
-   ) else if hasProperties(C, {inputRays, inputLinealityGenerators}) then (
-      (rayData, linealityData) = computeRaysFromFacetData(facets C, hyperplanes C);
-   ) else (
-      error "Rays not computable."
-   );
-   if not hasProperty(C, computedLinealityBasis) then setProperty(C, computedLinealityBasis, linealityData);
-   rayData
+rays Cone := {} >> o -> (cacheValue rays) (
+   C -> (
+      local rayData;
+      local linealityData;
+      if hasProperties(C, {facets, computedHyperplanes}) then (
+         (rayData, linealityData) = computeRaysFromFacetData(facets C, hyperplanes C);
+      ) else if hasProperties(C, {inequalities, equations}) then (
+         (rayData, linealityData) = computeRaysFromFacetData(getInequalities C, getEquations C);
+      ) else if hasProperties(C, {inputRays, inputLinealityGenerators}) then (
+         (rayData, linealityData) = computeRaysFromFacetData(facets C, hyperplanes C);
+      ) else (
+         error "Rays not computable."
+      );
+      if not hasProperty(C, computedLinealityBasis) then setProperty(C, computedLinealityBasis, linealityData);
+      rayData
+   )
 )
 
 
@@ -285,9 +311,9 @@ compute#Cone#ambientDimension Cone := C -> (
    else if hasProperty(C, rays) then numRows rays C
    else if hasProperty(C, inputLinealityGenerators) then numRows getInputLinealityGenerators C
    else if hasProperty(C, computedLinealityBasis) then numRows linealitySpace C
-   else if hasProperty(C, inequalities) then numColumns getProperty(C, inequalities)
+   else if hasProperty(C, inequalities) then numColumns getInequalities C
    else if hasProperty(C, facets) then numColumns facets C
-   else if hasProperty(C, equations) then numColumns getProperty(C, equations)
+   else if hasProperty(C, equations) then numColumns getEquations C
    else if hasProperty(C, computedHyperplanes) then numColumns hyperplanes C
    else error("Is the cone fully defined? Cannot compute ambient dimension.")
 )

@@ -10,29 +10,33 @@ getUnderlyingFan PolyhedralComplex := (cacheValue symbol underlyingFan) (
 )
 
 
-compute#PolyhedralComplex#computedVertices = method()
-compute#PolyhedralComplex#computedVertices PolyhedralComplex := PC -> (
-   F := getUnderlyingFan PC;
-   n := ambDim PC;
-   homogVert := promote(rays F, QQ);
-   vList := {};
-   rList := {};
-   for i from 0 to numColumns homogVert - 1 do (
-      current := homogVert_i;
-      if current_0 > 0 then (
-         current = (1/(current_0)) * current;
-         vList = append(vList, slice(current, 1..n));
-      ) else if current_0 == 0 then (
-         rList = append(rList, slice(current, 1..n));
-      ) else (
-         error("Something went wrong, vertex with negative height.");
+-- vertices/rays/linealitySpace mutually reference each other's computation
+-- for PolyhedralComplex (via the underlying Fan), migrated together; see the
+-- analogous blocks in core/cone/properties.m2 and core/polyhedron/properties.m2.
+vertices PolyhedralComplex := (cacheValue symbol computedVertices) (
+   PC -> (
+      F := getUnderlyingFan PC;
+      n := ambDim PC;
+      homogVert := promote(rays F, QQ);
+      vList := {};
+      rList := {};
+      for i from 0 to numColumns homogVert - 1 do (
+         current := homogVert_i;
+         if current_0 > 0 then (
+            current = (1/(current_0)) * current;
+            vList = append(vList, slice(current, 1..n));
+         ) else if current_0 == 0 then (
+            rList = append(rList, slice(current, 1..n));
+         ) else (
+            error("Something went wrong, vertex with negative height.");
+         );
       );
-   );
-   vMat := matrixFromVectorList(vList, n, QQ);
-   rMat := matrixFromVectorList(rList, n, QQ);
-   setProperty(PC, rays, rMat);
-   setProperty(PC, empty, numColumns vMat == 0);
-   return vMat
+      vMat := matrixFromVectorList(vList, n, QQ);
+      rMat := matrixFromVectorList(rList, n, QQ);
+      setProperty(PC, rays, rMat);
+      setProperty(PC, empty, numColumns vMat == 0);
+      vMat
+   )
 )
 
 
@@ -50,10 +54,11 @@ compute#PolyhedralComplex#isWellDefined PolyhedralComplex := PC -> (
 )
 
 
-compute#PolyhedralComplex#rays = method()
-compute#PolyhedralComplex#rays PolyhedralComplex := PC -> (
-   vertices PC;
-   getProperty(PC, rays)
+rays PolyhedralComplex := {} >> o -> (cacheValue rays) (
+   PC -> (
+      vertices PC;
+      rays PC
+   )
 )
 
 
@@ -64,13 +69,14 @@ compute#PolyhedralComplex#computedDimension PolyhedralComplex := PC -> (
 )
 
 
-compute#PolyhedralComplex#computedLinealityBasis = method()
-compute#PolyhedralComplex#computedLinealityBasis PolyhedralComplex := PC -> (
-   F := getUnderlyingFan PC;
-   result := promote(linealitySpace F, QQ);
-   test := all(0..(numColumns result - 1), i-> result_i_0 == 0);
-   if not test then error("Something went wrong while computing linealitySpace.");
-   submatrix(result, 1..(numRows result -1), 0..(numColumns result - 1))
+linealitySpace PolyhedralComplex := (cacheValue symbol computedLinealityBasis) (
+   PC -> (
+      F := getUnderlyingFan PC;
+      result := promote(linealitySpace F, QQ);
+      test := all(0..(numColumns result - 1), i-> result_i_0 == 0);
+      if not test then error("Something went wrong while computing linealitySpace.");
+      submatrix(result, 1..(numRows result -1), 0..(numColumns result - 1))
+   )
 )
 
 

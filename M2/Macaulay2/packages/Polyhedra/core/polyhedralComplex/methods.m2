@@ -36,7 +36,7 @@ maxPolyhedra(PolyhedralComplex, Polyhedron) := (PC, Polyhedron) -> (
 )
 
 
-vertices PolyhedralComplex := PC -> getProperty(PC, computedVertices)
+-- vertices PolyhedralComplex is installed in core/polyhedralComplex/properties.m2
 
 
 skeleton(ZZ,PolyhedralComplex) := (n,PC) -> (
