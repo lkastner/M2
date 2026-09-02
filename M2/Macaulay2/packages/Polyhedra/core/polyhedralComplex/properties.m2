@@ -128,18 +128,8 @@ compute#PolyhedralComplex#computedFacesThroughRays PolyhedralComplex := PC -> (
    hashTable pairs result
 )
 
-compute#PolyhedralComplex#honestMaxObjects = method()
-compute#PolyhedralComplex#honestMaxObjects PolyhedralComplex := PC -> (
-   vertPC := vertices PC;
-   raysPC := rays PC;
-   linPC := linealitySpace PC;
-   mP := maxPolyhedra PC;
-   apply(mP, m-> convexHull(vertPC_(m#0), raysPC_(m#1), linPC))
-)
-
-
 compute#PolyhedralComplex#simplicial = method()
 compute#PolyhedralComplex#simplicial PolyhedralComplex := PC -> (
-   hmO := getProperty(PC, honestMaxObjects);
+   hmO := maxPolyhedra(PC, Polyhedron);
    all(hmO, m -> isSimplicial m)
 )

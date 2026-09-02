@@ -66,7 +66,7 @@ polyhedralComplex List := L -> (
    if not all(L, l->instance(l, Polyhedron) or instance(l, PolyhedralComplex)) then error("Expected list of polyhedra and polyhedral complices.");
    PCs := select(L, l->instance(l, PolyhedralComplex));
    Ps := select(L, l->instance(l, Polyhedron));
-   PCs = flatten apply(PCs, l->getProperty(l, honestMaxObjects));
+   PCs = flatten apply(PCs, l -> maxPolyhedra(l, Polyhedron));
    MO := flatten {Ps, PCs};
    result := polyhedralComplex MO#0;
    addPolyhedron(MO, result)

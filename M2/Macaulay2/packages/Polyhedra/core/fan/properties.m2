@@ -11,18 +11,19 @@ getInputLinealityGenerators Fan := (cacheValue symbol inputLinealityGenerators) 
 
 compute#Fan#isWellDefined = method()
 compute#Fan#isWellDefined Fan := F -> (
-   cones := getProperty(F, honestMaxObjects);
+   indexLists := maxCones F;
+   cones := maxCones(F, Cone);
    n := #cones;
    for i from 0 to n-1 do (
-      ki := (keys cones)#i;
-      Ci := cones#ki;
+      ki := indexLists#i;
+      Ci := cones#i;
       if(#ki != numColumns rays Ci) then(
          if debugLevel > 0 then << "The cone " << ki << " has redundant rays." << endl;
          return false;
       );
       for j from i to n-1 do (
-         kj := (keys cones)#j;
-         Cj := cones#kj;
+         kj := indexLists#j;
+         Cj := cones#j;
          if not commonFace(Ci, Cj) then (
             if debugLevel > 0 then << "The cones " << ki << " and " << kj << " do not intersect in a common face." << endl;
             return false
@@ -51,9 +52,11 @@ compute#Fan#computedFVector Fan := F -> (
 
 compute#Fan#simplicial = method()
 compute#Fan#simplicial Fan := F -> (
-   if hasProperty(F, honestMaxObjects) then (
-      mc := values getProperty(F, honestMaxObjects);
-      return all(mc, cone -> isSimplicial cone)
+   -- Reuse already-materialized cones if we happen to have them, rather
+   -- than forcing them just for this check; otherwise fall back to the
+   -- cheaper combinatorial (ray submatrix rank) computation below.
+   if F.cache#?(symbol maxCones => Cone) then (
+      return all(maxCones(F, Cone), cone -> isSimplicial cone)
    );
    R := rays F;
    L := linealitySpace F;
@@ -70,9 +73,8 @@ compute#Fan#simplicial Fan := F -> (
 compute#Fan#pure = method()
 compute#Fan#pure Fan := F -> (
    d := dim F;
-   if hasProperty(F, honestMaxObjects) then (
-      mc := values getProperty(F, honestMaxObjects);
-      return all(mc, cone -> (dim cone) == d)
+   if F.cache#?(symbol maxCones => Cone) then (
+      return all(maxCones(F, Cone), cone -> (dim cone) == d)
    );
    R := rays F;
    L := linealitySpace F;
@@ -91,14 +93,6 @@ compute#Fan#computedDimension Fan := F -> (
    max MC
 )
 
-compute#Fan#honestMaxObjects = method()
-compute#Fan#honestMaxObjects Fan := F -> (
-   R := rays F;
-   MC := maxCones F;
-   L := linealitySpace F;
-   new HashTable from apply(MC, m -> m=>coneFromVData(R_m, L))
-)
-
 compute#Fan#computedComplete = method()
 compute#Fan#computedComplete Fan := F -> (
    n := dim F;
@@ -108,7 +102,7 @@ compute#Fan#computedComplete Fan := F -> (
       summand2 := select(Y, y -> position(X, x->y==x) === null); 
       flatten {summand1, summand2}
    );
-   MC := values getProperty(F, honestMaxObjects);
+   MC := maxCones(F, Cone);
    Lfaces := {};
    CFsave := {};
    scan(MC, 
@@ -135,7 +129,7 @@ compute#Fan#rays Fan := F -> (
       LS := getProperty(F, computedLinealityBasis);
       makeRaysUniqueAndPrimitive(given, LS)
    ) else (
-      -- Could also compute this from the honestMaxObjects?
+      -- Could also compute this from maxCones(F, Cone)?
       error("No input rays given.")
    )
 )
@@ -143,7 +137,7 @@ compute#Fan#rays Fan := F -> (
 
 compute#Fan#computedFacesThroughRays = method()
 compute#Fan#computedFacesThroughRays Fan := F -> (
-   MC := values getProperty(F, honestMaxObjects);
+   MC := maxCones(F, Cone);
    raysF := rays F;
    dimF := dim F;
    linealityF := linealitySpace F;
@@ -234,6 +228,6 @@ compute#Fan#ambientDimension Fan := F -> (
 
 compute#Fan#pointed = method()
 compute#Fan#pointed Fan := F -> (
-   all(values getProperty(F, honestMaxObjects), C -> isPointed C)
+   all(maxCones(F, Cone), C -> isPointed C)
 )
 
