@@ -33,11 +33,11 @@ contains(Cone,Cone) := (C1,C2) -> (
    local C2lineality;
    -- Extracting rays of C2
    if hasProperty(C2, rays) then C2rays = rays C2
-   else if hasProperty(C2, inputRays) then C2rays = getProperty(C2, inputRays)
+   else if hasProperty(C2, inputRays) then C2rays = getInputRays C2
    else C2rays = rays C2;
    -- Extracting lineality of C2
    if hasProperty(C2, computedLinealityBasis) then C2lineality = linealitySpace C2
-   else if hasProperty(C2, inputLinealityGenerators) then C2lineality = getProperty(C2, inputLinealityGenerators)
+   else if hasProperty(C2, inputLinealityGenerators) then C2lineality = getInputLinealityGenerators C2
    else C2lineality = linealitySpace C2;
    gens := C2rays | C2lineality | (-C2lineality);
    positiveTest := flatten entries (C1ineq * gens);

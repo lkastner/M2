@@ -113,8 +113,8 @@ dualCone Cone := C -> (
    result := new CacheTable;
    if hasProperty(C, inequalities) then result#inputRays = transpose getProperty(C, inequalities);
    if hasProperty(C, equations) then result#inputLinealityGenerators = transpose getProperty(C, equations);
-   if hasProperty(C, inputRays) then result#inequalities = transpose getProperty(C, inputRays);
-   if hasProperty(C, inputLinealityGenerators) then result#equations = transpose getProperty(C, inputLinealityGenerators);
+   if hasProperty(C, inputRays) then result#inequalities = transpose getInputRays C;
+   if hasProperty(C, inputLinealityGenerators) then result#equations = transpose getInputLinealityGenerators C;
    if hasProperty(C, rays) then result#facets = transpose getProperty(C, rays);
    if hasProperty(C, computedLinealityBasis) then result#computedHyperplanes = transpose getProperty(C, computedLinealityBasis);
    if hasProperty(C, facets) then result#rays = transpose getProperty(C, facets);
@@ -122,17 +122,21 @@ dualCone Cone := C -> (
    return new Cone from {ambientDimension => ambDim C, cache => result}
 )
 
--- PURPOSE: Getting data from the ray side that determines cone completely,
---          avoid fourierMotzkin. Always pick best possible data.
+-- PURPOSE: Getting a (rays, linealityGenerators) V-representation of a Cone,
+--          preferring whatever is cheaply available -- the already-known
+--          canonical rays/lineality, else the raw input rays/lineality --
+--          over forcing a fourierMotzkin computation. Not minimal/unique in
+--          general (the raw-input tier may be redundant); use rays C /
+--          linealitySpace C directly if minimality is required.
 getSufficientRayData = method()
 getSufficientRayData Cone := C -> (
    if hasProperties(C, {rays, computedLinealityBasis}) then (
-      return (rays C, linealitySpace C)
+      (rays C, linealitySpace C)
    ) else if hasProperties(C, {inputRays, inputLinealityGenerators}) then (
-      return (getProperty(C, inputRays), getProperty(C, inputLinealityGenerators))
+      (getInputRays C, getInputLinealityGenerators C)
    ) else (
-      return (rays C, linealitySpace C)
-   );
+      (rays C, linealitySpace C)
+   )
 )
 
 

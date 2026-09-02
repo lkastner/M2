@@ -46,20 +46,17 @@ latticePoints Polyhedron := P -> (
 
 
 
--- PURPOSE: Getting data from the vertex side that determines polyhedron
---          completely, avoid fourierMotzkin. Always pick best possible data.
-getSufficientVertexData = method()
-getSufficientVertexData Polyhedron := P -> (
+-- PURPOSE: Getting a (vertices, rays, linealityGenerators) V-representation
+--          of a Polyhedron, preferring whatever is cheaply available -- see
+--          getSufficientRayData Cone in core/cone/methods.m2 for the same idea
+--          one representation level down.
+getSufficientRayData Polyhedron := P -> (
    if hasProperties(P, {computedVertices, rays, computedLinealityBasis}) then (
-      return(vertices P, rays P, linealitySpace P)
+      (vertices P, rays P, linealitySpace P)
    ) else if hasProperties(P, {points, inputRays, inputLinealityGenerators}) then (
-      return (
-         getProperty(P, points),
-         getProperty(P, inputRays),
-         getProperty(P, inputLinealityGenerators)
-      )
+      (getPoints P, getInputRays P, getInputLinealityGenerators P)
    ) else (
-      return(vertices P, rays P, linealitySpace P)
+      (vertices P, rays P, linealitySpace P)
    )
 )
 

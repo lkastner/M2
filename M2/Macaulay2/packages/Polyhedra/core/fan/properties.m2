@@ -1,3 +1,14 @@
+-- See core/cone/properties.m2 for why these exist under getInputRays/
+-- getInputLinealityGenerators rather than the (protected) property names.
+getInputRays Fan := (cacheValue symbol inputRays) (
+   F -> error("No input rays set for this Fan.")
+)
+
+getInputLinealityGenerators Fan := (cacheValue symbol inputLinealityGenerators) (
+   F -> error("No input lineality generators set for this Fan.")
+)
+
+
 compute#Fan#isWellDefined = method()
 compute#Fan#isWellDefined Fan := F -> (
    cones := getProperty(F, honestMaxObjects);
@@ -120,7 +131,7 @@ compute#Fan#computedComplete Fan := F -> (
 compute#Fan#rays = method()
 compute#Fan#rays Fan := F -> (
    if hasProperty(F, inputRays) then (
-      given := getProperty(F, inputRays);
+      given := getInputRays F;
       LS := getProperty(F, computedLinealityBasis);
       makeRaysUniqueAndPrimitive(given, LS)
    ) else (
@@ -162,7 +173,7 @@ compute#Fan#generatingObjects Fan := F -> (
    if hasProperty(F, inputCones) then (
       cones := getProperty(F, inputCones);
       if hasProperty(F, inputRays) then (
-         inputRaysF := getProperty(F, inputRays);
+         inputRaysF := getInputRays F;
          raysF := rays F;
          linealityF := linealitySpace F;
          rc := rayCorrespondenceMap(inputRaysF, linealityF, raysF);
@@ -215,8 +226,8 @@ compute#Fan#ambientDimension = method()
 compute#Fan#ambientDimension Fan := F -> (
    if hasProperty(F, rays) then return numRows rays F
    else if hasProperty(F, computedLinealityBasis) then return numRows linealitySpace F
-   else if hasProperty(F, inputRays) then return numRows getProperty(F, inputRays)
-   else if hasProperty(F, inputLinealityGenerators) then return numRows getProperty(F, inputLinealityGenerators)
+   else if hasProperty(F, inputRays) then return numRows getInputRays F
+   else if hasProperty(F, inputLinealityGenerators) then return numRows getInputLinealityGenerators F
    else error("No property available to compute ambient dimension.")
 )
 

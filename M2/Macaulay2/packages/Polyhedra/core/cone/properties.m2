@@ -1,3 +1,23 @@
+-- inputRays/inputLinealityGenerators (and, for Polyhedron, points) are pure
+-- construction-time data: there is no compute# fallback for them, they are
+-- either given when the object is built or not there at all. These getters
+-- are the single place that looks them up (still via cacheValue/the shared
+-- underlying cache key, so behavior is unchanged), in place of
+-- getProperty(*, inputRays) / getProperty(*, inputLinealityGenerators).
+-- Named getInputRays/getInputLinealityGenerators, not inputRays/
+-- inputLinealityGenerators, since the latter are protected symbols used as
+-- the property/cache keys.
+getInputRays = method()
+getInputRays Cone := (cacheValue symbol inputRays) (
+   C -> error("No input rays set for this Cone.")
+)
+
+getInputLinealityGenerators = method()
+getInputLinealityGenerators Cone := (cacheValue symbol inputLinealityGenerators) (
+   C -> error("No input lineality generators set for this Cone.")
+)
+
+
 compute#Cone#isWellDefined = method()
 compute#Cone#isWellDefined Cone := C -> (
    hasEnoughProperties := false;
@@ -12,7 +32,7 @@ compute#Cone#isWellDefined Cone := C -> (
    );
    if hasProperties(C, {inputRays, inputLinealityGenerators}) then (
       hasEnoughProperties = true;
-      C2 := coneFromVData(getProperty(C, inputRays), getProperty(C, inputLinealityGenerators));
+      C2 := coneFromVData(getInputRays C, getInputLinealityGenerators C);
       if not testDim == dim C2 then return false;
       if not testAmbientDim == ambDim C2 then return false;
       if not (C2 == C) then return false
@@ -167,7 +187,7 @@ compute#Cone#computedDimension Cone := C -> (
    if hasProperties(C, {rays, computedLinealityBasis}) then (
       return (rank rays C) + (numColumns linealitySpace C)
    ) else if hasProperties(C, {inputRays, inputLinealityGenerators}) then (
-      return rank (getProperty(C, inputRays) | getProperty(C, inputLinealityGenerators))
+      return rank (getInputRays C | getInputLinealityGenerators C)
 -- TODO: Add missing possibilities
    ) else (
       return (rank rays C) + (numColumns linealitySpace C)
@@ -206,7 +226,7 @@ compute#Cone#computedHyperplanes Cone := C -> (
    if hasProperties(C, {rays, computedLinealityBasis}) then (
       containingSpace = rays C | linealitySpace C;
    ) else if hasProperties(C, {inputRays, inputLinealityGenerators}) then (
-      containingSpace = getProperty(C, inputRays) | getProperty(C, inputLinealityGenerators);
+      containingSpace = getInputRays C | getInputLinealityGenerators C;
    ) else if hasProperties(C, {inequalities, equations}) then (
       facets C;
       return hyperplanes C
@@ -220,16 +240,13 @@ compute#Cone#computedHyperplanes Cone := C -> (
 
 compute#Cone#facets = method()
 compute#Cone#facets Cone := C -> (
-   (facetData, hyperplaneData) := (0,0);
-   if hasProperties(C, {rays, computedLinealityBasis}) then (
-      (facetData, hyperplaneData) = computeFacetsFromRayData(rays C, linealitySpace C);
-   ) else if hasProperties(C, {inputRays, inputLinealityGenerators}) then (
-      (facetData, hyperplaneData) = computeFacetsFromRayData(getProperty(C, inputRays), getProperty(C, inputLinealityGenerators));
-   ) else if hasProperties(C, {inequalities, equations}) then (
-      (facetData, hyperplaneData) = computeFacetsFromRayData(rays C, linealitySpace C);
-   ) else (
-      error "Facets not computable."
-   );
+   -- rays/computedLinealityBasis and inequalities/equations both end up
+   -- using (rays C, linealitySpace C) here (the latter by forcing rays C to
+   -- be computed from the inequalities/equations), so this is exactly
+   -- getSufficientRayData's tiering: prefer already-known rays, else raw
+   -- input rays, else force the canonical computation.
+   (rayData, linealityData) := getSufficientRayData C;
+   (facetData, hyperplaneData) := computeFacetsFromRayData(rayData, linealityData);
    if not hasProperty(C, computedHyperplanes) then setProperty(C, computedHyperplanes, hyperplaneData);
    facetData
 )
@@ -264,9 +281,9 @@ compute#Cone#simplicial Cone := C -> (
 
 compute#Cone#ambientDimension = method()
 compute#Cone#ambientDimension Cone := C -> (
-   if hasProperty(C, inputRays) then numRows getProperty(C, inputRays)
+   if hasProperty(C, inputRays) then numRows getInputRays C
    else if hasProperty(C, rays) then numRows rays C
-   else if hasProperty(C, inputLinealityGenerators) then numRows getProperty(C, inputLinealityGenerators)
+   else if hasProperty(C, inputLinealityGenerators) then numRows getInputLinealityGenerators C
    else if hasProperty(C, computedLinealityBasis) then numRows linealitySpace C
    else if hasProperty(C, inequalities) then numColumns getProperty(C, inequalities)
    else if hasProperty(C, facets) then numColumns facets C

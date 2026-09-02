@@ -35,7 +35,7 @@ compute#Polyhedron#lattice Polyhedron := P -> (
 
 compute#Polyhedron#empty = method()
 compute#Polyhedron#empty Polyhedron := P -> (
-   if hasProperty(P, points) then (numColumns getProperty(P, points)) == 0
+   if hasProperty(P, points) then (numColumns getPoints P) == 0
    else (numColumns vertices P) == 0
 )
 
@@ -67,6 +67,22 @@ compute#Polyhedron#computedLinealityBasis Polyhedron := P -> (
 )
 
 
+-- points, like inputRays/inputLinealityGenerators (see core/cone/properties.m2),
+-- is pure construction-time data with no compute# fallback.
+getPoints = method()
+getPoints Polyhedron := (cacheValue symbol points) (
+   P -> error("No points set for this Polyhedron.")
+)
+
+getInputRays Polyhedron := (cacheValue symbol inputRays) (
+   P -> error("No input rays set for this Polyhedron.")
+)
+
+getInputLinealityGenerators Polyhedron := (cacheValue symbol inputLinealityGenerators) (
+   P -> error("No input lineality generators set for this Polyhedron.")
+)
+
+
 -- Some constructors set underlyingCone directly at construction time; for
 -- the rest, it is computed here (lazily, cached via cacheValue under the
 -- same cache key underlyingCone would have used) from whatever data the
@@ -84,8 +100,8 @@ getUnderlyingCone Polyhedron := (cacheValue symbol underlyingCone) (
       -- Copy every information the polyhedron provides to the
       -- underlyingCone.
       if hasProperties(P, {points, inputRays}) then (
-         pMat = prependOnes getProperty(P, points);
-         rMat = prependZeros getProperty(P, inputRays);
+         pMat = prependOnes getPoints P;
+         rMat = prependZeros getInputRays P;
          result = append(result, inputRays => (pMat | rMat));
       );
       if hasProperties(P, {computedVertices, rays}) then (
@@ -94,7 +110,7 @@ getUnderlyingCone Polyhedron := (cacheValue symbol underlyingCone) (
          result = append(result, rays => (pMat | rMat));
       );
       if hasProperty(P, inputLinealityGenerators) then (
-         pMat = prependZeros getProperty(P, inputLinealityGenerators);
+         pMat = prependZeros getInputLinealityGenerators P;
          result = append(result, inputLinealityGenerators => pMat);
       );
       if hasProperty(P, computedLinealityBasis) then (
