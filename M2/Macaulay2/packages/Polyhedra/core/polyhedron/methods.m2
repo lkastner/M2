@@ -16,8 +16,8 @@ vertices Polyhedron := P -> (
 isFace(Polyhedron,Polyhedron) := (P,Q) -> (
    -- Checking if the two polyhedra lie in the same space and computing the dimension difference
    if not isEmpty P then (
-      CP := getProperty(P, underlyingCone);
-      CQ := getProperty(Q, underlyingCone);
+      CP := getUnderlyingCone P;
+      CQ := getUnderlyingCone Q;
       isFace(CP, CQ)
    ) else return ambDim P == ambDim Q
 )
@@ -119,12 +119,12 @@ isWellDefined Polyhedron := P -> getProperty(P, isWellDefined)
 nVertices Polyhedron := P -> getProperty(P, nVertices)
 
 cone (Polyhedron) := P->(
-   getProperty(P,underlyingCone)
+   getUnderlyingCone P
 )
 
 dualFaceRepresentationMap Polyhedron := P -> (
    if not isCompact P then error("Only works for bounded polyhedra for now.");
-   C := getProperty(P, underlyingCone);
+   C := getUnderlyingCone P;
    getProperty(C, facetRayDataConverter)
 )
 

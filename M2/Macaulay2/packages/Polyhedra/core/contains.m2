@@ -7,8 +7,8 @@ contains = method(TypicalValue => Boolean)
 contains(Polyhedron,Polyhedron) := (P1,P2) -> (
    -- checking for input errors
    if ambDim(P1) =!= ambDim(P2) then error("Polyhedra must lie in the same ambient space");
-   C1 := getProperty(P1, underlyingCone);
-   C2 := getProperty(P2, underlyingCone);
+   C1 := getUnderlyingCone P1;
+   C2 := getUnderlyingCone P2;
    contains(C1, C2)
 )
 

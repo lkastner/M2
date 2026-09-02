@@ -5,8 +5,8 @@ commonFace = method(TypicalValue => Boolean)
 --   INPUT : '(P,Q)'  two Polyhedra
 --  OUTPUT : 'true' or 'false'
 commonFace(Polyhedron,Polyhedron) := (P,Q) -> (
-   CP := getProperty(P, underlyingCone);
-   CQ := getProperty(Q, underlyingCone);
+   CP := getUnderlyingCone P;
+   CQ := getUnderlyingCone Q;
    commonFace(CP, CQ)
 )
 
