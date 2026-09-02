@@ -128,8 +128,8 @@ dualCone Cone := C -> (
 --          over forcing a fourierMotzkin computation. Not minimal/unique in
 --          general (the raw-input tier may be redundant); use rays C /
 --          linealitySpace C directly if minimality is required.
-getSufficientRayData = method()
-getSufficientRayData Cone := C -> (
+getVRepresentation = method()
+getVRepresentation Cone := C -> (
    if hasProperties(C, {rays, computedLinealityBasis}) then (
       (rays C, linealitySpace C)
    ) else if hasProperties(C, {inputRays, inputLinealityGenerators}) then (

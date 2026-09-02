@@ -243,9 +243,9 @@ compute#Cone#facets Cone := C -> (
    -- rays/computedLinealityBasis and inequalities/equations both end up
    -- using (rays C, linealitySpace C) here (the latter by forcing rays C to
    -- be computed from the inequalities/equations), so this is exactly
-   -- getSufficientRayData's tiering: prefer already-known rays, else raw
+   -- getVRepresentation's tiering: prefer already-known rays, else raw
    -- input rays, else force the canonical computation.
-   (rayData, linealityData) := getSufficientRayData C;
+   (rayData, linealityData) := getVRepresentation C;
    (facetData, hyperplaneData) := computeFacetsFromRayData(rayData, linealityData);
    if not hasProperty(C, computedHyperplanes) then setProperty(C, computedHyperplanes, hyperplaneData);
    facetData

@@ -48,9 +48,9 @@ latticePoints Polyhedron := P -> (
 
 -- PURPOSE: Getting a (vertices, rays, linealityGenerators) V-representation
 --          of a Polyhedron, preferring whatever is cheaply available -- see
---          getSufficientRayData Cone in core/cone/methods.m2 for the same idea
+--          getVRepresentation Cone in core/cone/methods.m2 for the same idea
 --          one representation level down.
-getSufficientRayData Polyhedron := P -> (
+getVRepresentation Polyhedron := P -> (
    if hasProperties(P, {computedVertices, rays, computedLinealityBasis}) then (
       (vertices P, rays P, linealitySpace P)
    ) else if hasProperties(P, {points, inputRays, inputLinealityGenerators}) then (

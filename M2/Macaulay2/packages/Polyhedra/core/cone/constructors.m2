@@ -115,8 +115,8 @@ coneFromVData Matrix := R -> (
 
 --   INPUT : '(C1,C2)'  two cones
 coneFromVData(Cone,Cone) := (C1,C2) -> (
-   (iRays1, linealityGens1) := getSufficientRayData C1;
-   (iRays2, linealityGens2) := getSufficientRayData C2;
+   (iRays1, linealityGens1) := getVRepresentation C1;
+   (iRays2, linealityGens2) := getVRepresentation C2;
    coneFromVData(iRays1 | iRays2, linealityGens1 | linealityGens2)
 )
 
