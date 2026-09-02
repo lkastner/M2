@@ -75,7 +75,7 @@ polyhedralComplex List := L -> (
 
 addPolyhedron = method()
 addPolyhedron(Polyhedron,PolyhedralComplex) := (P, PC) -> (
-   F := getProperty(PC, underlyingFan);
+   F := getUnderlyingFan PC;
    C := getProperty(P, underlyingCone);
    result := new HashTable from {
       underlyingFan => addCone(F, C)
